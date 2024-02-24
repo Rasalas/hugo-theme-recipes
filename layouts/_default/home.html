@@ -1,7 +1,13 @@
 {{ define "main" }}
-  {{ .Content }}
-  {{ range site.RegularPages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-    {{ .Summary }}
-  {{ end }}
+  <div class="hero min-h-screen bg-base-200">
+    <div class="hero-content text-center">
+      <div class="max-w-md">
+        <h1 class="text-5xl font-bold">{{ .Title }}</h1>
+        <div class="py-6">
+          {{ .Content }}
+        </div>
+        <a href="{{ .Site.BaseURL }}/recipe" class="btn btn-primary">Rezepte ansehen</a>
+      </div>
+    </div>
+  </div>
 {{ end }}
