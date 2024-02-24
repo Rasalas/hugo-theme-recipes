@@ -10,42 +10,37 @@ Renders a menu for the given menu ID.
 {{- $page := .page }}
 {{- $menuID := .menuID }}
 
-{{- with index site.Menus $menuID }}
-  <nav>
-    <ul>
-      {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
-    </ul>
-  </nav>
-{{- end }}
 
-{{- define "partials/inline/menu/walk.html" }}
-  {{- $page := .page }}
-  {{- range .menuEntries }}
-    {{- $attrs := dict "href" .URL }}
-    {{- if $page.IsMenuCurrent .Menu . }}
-      {{- $attrs = merge $attrs (dict "class" "active" "aria-current" "page") }}
-    {{- else if $page.HasMenuCurrent .Menu .}}
-      {{- $attrs = merge $attrs (dict "class" "ancestor" "aria-current" "true") }}
-    {{- end }}
-    {{- $name := .Name }}
-    {{- with .Identifier }}
-      {{- with T . }}
-        {{- $name = . }}
-      {{- end }}
-    {{- end }}
-    <li>
-      <a
-        {{- range $k, $v := $attrs }}
-          {{- with $v }}
-            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
-          {{- end }}
-        {{- end -}}
-      >{{ $name }}</a>
-      {{- with .Children }}
-        <ul>
-          {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
-        </ul>
-      {{- end }}
-    </li>
-  {{- end }}
-{{- end }}
+<nav class="navbar bg-base-100">
+  <div class="flex-1">
+    <a href="{{ $page.Site.BaseURL }}" class="btn btn-ghost text-xl">
+      <!-- SVG Icon -->
+      <svg class="h-8 w-auto" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 640 512"><!--!Font Awesome Pro 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc.-->
+        <path class="fa-secondary" opacity=".4" fill="#21a6b0"
+          d="M64 373.8c0 15.3 10.8 28.4 25.7 31.4L304 448V32L100.6 2.2C81.3-.7 64 14.3 64 33.8V373.8zM576 33.8c0-19.5-17.3-34.5-36.6-31.7L336 32V448l214.3-42.9c15-3 25.7-16.1 25.7-31.4V33.8z" />
+        <path class="fa-primary" fill="#21a6b0"
+          d="M89.7 405.1L320 451.2l230.3-46.1c15-3 25.7-16.1 25.7-31.4V28.8l25.7-5.1C621.5 19.7 640 34.8 640 55V421.8c0 15.3-10.8 28.4-25.7 31.4L320 512 25.7 453.1C10.8 450.2 0 437 0 421.8V55C0 34.8 18.5 19.7 38.3 23.7L64 28.8v345c0 15.3 10.8 28.4 25.7 31.4z" />
+      </svg>
+      Rezepte
+    </a>
+  </div>
+  <div class="flex-none gap-2">
+    <!-- <div class="form-control">
+      <input type="search" placeholder="Suche" class="input input-bordered w-24 md:w-auto" />
+    </div> -->
+    {{ with index site.Menus $menuID }}
+    <ul class="menu menu-horizontal px-1">
+      <div class="flex gap-2">
+        {{ range . }}
+        <li>
+          <a href="{{ .URL }}">
+            {{ .Name }}
+          </a>
+        </li>
+        {{ end }}
+      </div>
+    </ul>
+    {{ end }}
+  </div>
+</nav>

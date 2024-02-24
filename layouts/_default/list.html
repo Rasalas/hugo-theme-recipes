@@ -1,8 +1,37 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ range .Pages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-    {{ .Summary }}
-  {{ end }}
+<div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-8">
+  <div class="card bg-neutral text-neutral-content shadow-xl">
+    <div class="card-body">
+      <h1 class="card-title">{{ .Title }}</h1>
+      <div class="overflow-x-auto">
+        <table class="table table-compact w-full cursor-pointer">
+          <thead>
+            <tr>
+              <th>Titel</th>
+              <th>Beschreibung</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Pages }}
+            <tr onclick="window.location='{{ .RelPermalink }}';" style="cursor: pointer;">
+              <td>{{ .LinkTitle }}</td>
+              <td>{{ .Params.description }}</td>
+              <td>
+                {{ if .Params.tags }}
+                <div class="flex flex-wrap gap-2">
+                  {{ range .Params.tags }}
+                  <span class="badge badge-outline">{{ . }}</span>
+                  {{ end }}
+                </div>
+                {{ end }}
+              </td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 {{ end }}
