@@ -2,7 +2,7 @@
 <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-8">
   <div class="card bg-neutral text-neutral-content shadow-xl mb-4">
     <div class="card-body">
-      {{ range .Pages }}
+      {{ range sort .Pages "Params.title" }}
       <div class="flex py-3" onclick="window.location='{{ .RelPermalink }}';" style="cursor: pointer;">
         <div class="flex-none">
           {{ if .Params.images.thumb }}
