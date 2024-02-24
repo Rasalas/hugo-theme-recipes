@@ -24,10 +24,10 @@
           {{ end }}
         </div>
         <div class="flex-grow ml-4">
-          <h2 class="card-title">{{ .LinkTitle }}</h2>
-          <p>{{ .Params.description }}</p>
+          <h2 class="card-title select-none">{{ .LinkTitle }}</h2>
+          <p class="select-none">{{ .Params.description }}</p>
           {{ if .Params.tags }}
-          <p class="flex flex-wrap gap-2 mt-2">
+          <p class="flex flex-wrap gap-2 mt-2 select-none">
             {{ range .Params.tags }}
             <span class="badge badge-outline">{{ . }}</span>
             {{ end }}
