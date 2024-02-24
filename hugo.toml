@@ -16,3 +16,6 @@ weight = 20
   [module.hugoVersion]
     extended = false
     min = "0.116.0"
+
+[frontmatter]
+  lastmod = [":git", ":fileModTime", ":default"]
