@@ -1,6 +1,6 @@
 {{ define "main" }}
 <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-8">
-  <div class="card bg-neutral text-neutral-content shadow-xl mb-4">
+  <div class="card bg-gray-200 dark:bg-neutral shadow-lg shadow-xl mb-4">
     <div class="card-body">
       {{ range sort .Pages "Params.title" }}
       <div class="flex py-3" onclick="window.location='{{ .RelPermalink }}';" style="cursor: pointer;">
@@ -12,7 +12,7 @@
             </div>
           </div>
           {{ else }}
-          <div class="w-16 rounded-xl bg-gray-800 p-4">
+          <div class="w-16 rounded-xl bg-gray-300 dark:bg-gray-800  p-4">
             <svg xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 448 512"><!--!Font Awesome Pro 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc.-->
               <path class="fa-secondary" opacity=".4" fill="#21a6b0"
