@@ -1,21 +1,21 @@
 {{ define "main" }}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Suche</h1>
-    
-    <div class="mb-8">
-        <div class="relative">
-            <input type="text" id="search-input" 
-                   class="w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Suchbegriff eingeben...">
-            <button id="clear-highlights" 
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full hidden">
-                Markierungen ausblenden
-            </button>
-        </div>
-    </div>
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content w-full max-w-5xl">
+        <div class="w-full">
+            <h1 class="text-3xl font-bold mb-8 dark:text-white text-center">Suche</h1>
+            
+            <div class="mb-8 max-w-2xl mx-auto">
+                <div class="relative">
+                    <input type="text" id="search-input" 
+                           class="w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 bg-gray-200 dark:bg-neutral dark:text-white dark:border-neutral-700"
+                           placeholder="Suchbegriff eingeben...">
+                </div>
+            </div>
 
-    <div id="search-results" class="space-y-6">
-        <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+            <div id="search-results" class="grid grid-cols-1 gap-6 text-left">
+                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -24,30 +24,27 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
-    const clearHighlightsBtn = document.getElementById('clear-highlights');
     
     // URL-Parameter Handling
     const urlParams = new URLSearchParams(window.location.search);
     const initialQuery = urlParams.get('q');
-    const highlightsDisabled = urlParams.get('noHighlight') === 'true';
     
     if (initialQuery) {
         searchInput.value = initialQuery;
     }
     
-    function updateURL(searchTerm, noHighlight = false) {
+    function updateURL(searchTerm) {
         const params = new URLSearchParams();
         if (searchTerm) params.set('q', searchTerm);
-        if (noHighlight) params.set('noHighlight', 'true');
         
         const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
         window.history.pushState({}, '', newURL);
     }
     
     function highlightText(text, searchTerm) {
-        if (!searchTerm || highlightsDisabled) return text;
+        if (!searchTerm) return text;
         const regex = new RegExp(`(${searchTerm})`, 'gi');
-        return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+        return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
     }
 
     function getContextSnippet(content, searchTerm, maxLength = 200) {
@@ -101,12 +98,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const performSearch = (searchTerm) => {
             if (searchTerm.length < 2) {
                 searchResults.innerHTML = '';
-                clearHighlightsBtn.classList.add('hidden');
                 updateURL('');
                 return;
             }
             
-            updateURL(searchTerm, highlightsDisabled);
+            updateURL(searchTerm);
             
             const isExactSearch = searchTerm.startsWith('"') && searchTerm.endsWith('"');
             if (isExactSearch) {
@@ -127,43 +123,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return acc;
                 }
             }, []);
-            
-            clearHighlightsBtn.classList.toggle('hidden', uniqueResults.length === 0);
+
+            // Anpassen der Grid-Klassen basierend auf der Anzahl der Ergebnisse
+            const gridClasses = uniqueResults.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
+                              uniqueResults.length === 2 ? 'sm:grid-cols-2 max-w-2xl mx-auto' :
+                              'sm:grid-cols-2 lg:grid-cols-3';
+            searchResults.className = `grid grid-cols-1 gap-6 text-left ${gridClasses}`;
             
             searchResults.innerHTML = uniqueResults.length ? 
                 uniqueResults.map(result => {
                     const tags = result.item.tags ? 
                         `<div class="flex flex-wrap gap-2 mt-2">
                             ${result.item.tags.map(tag => 
-                                `<span class="px-2 py-1 bg-gray-100 text-sm rounded-full">${tag}</span>`
+                                `<span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white">${tag}</span>`
                             ).join('')}
                         </div>` : '';
                     
-                    const contextSnippet = getContextSnippet(result.item.content, searchTerm);
-                    const highlightParam = highlightsDisabled ? '&noHighlight=true' : '';
+                    const description = result.item.description || getContextSnippet(result.item.content, searchTerm);
                     
                     return `
-                        <div class="p-4 border rounded-lg hover:shadow-md transition-shadow bg-white">
-                            <a href="${result.item.permalink}?q=${encodeURIComponent(searchTerm)}${highlightParam}" class="block">
-                                <h2 class="text-xl font-semibold mb-2 text-blue-600 hover:text-blue-800">
+                        <a href="${result.item.permalink}" 
+                           class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow">
+                            ${result.item.images && result.item.images.thumb ? 
+                                `<div class="aspect-video w-full overflow-hidden">
+                                    <img src="${result.item.images.thumb}" 
+                                         alt="${result.item.title}" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                </div>` : 
+                                `<div class="aspect-video w-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>`
+                            }
+                            <div class="p-4">
+                                <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
                                     ${highlightText(result.item.title, searchTerm)}
                                 </h2>
-                                <p class="text-gray-600 mb-2 text-sm">${contextSnippet}</p>
+                                <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2">${description}</p>
                                 ${tags}
-                            </a>
-                        </div>
+                            </div>
+                        </a>
                     `;
                 }).join('') :
-                '<p class="text-gray-500">Keine Ergebnisse gefunden.</p>';
+                '<p class="text-neutral-500 dark:text-neutral-400 col-span-full text-center">Keine Ergebnisse gefunden.</p>';
         };
-        
-        // Toggle Highlights Button
-        clearHighlightsBtn.addEventListener('click', () => {
-            highlightsDisabled = !highlightsDisabled;
-            clearHighlightsBtn.textContent = highlightsDisabled ? 'Markierungen einblenden' : 'Markierungen ausblenden';
-            updateURL(searchInput.value, highlightsDisabled);
-            performSearch(searchInput.value);
-        });
         
         // Event Listeners
         let debounceTimer;
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 performSearch(e.target.value);
-            }, 300); // Debounce von 300ms
+            }, 300);
         });
         
         searchInput.addEventListener('keypress', (e) => {
@@ -187,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
     } catch (error) {
         console.error('Error loading search index:', error);
-        searchResults.innerHTML = '<p class="text-red-500">Fehler beim Laden des Suchindex. Bitte versuchen Sie es später erneut.</p>';
+        searchResults.innerHTML = '<p class="text-red-500 dark:text-red-400 col-span-full text-center">Fehler beim Laden des Suchindex. Bitte versuchen Sie es später erneut.</p>';
     }
 });
 </script>

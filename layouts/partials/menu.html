@@ -10,37 +10,39 @@ Renders a menu for the given menu ID.
 {{- $page := .page }}
 {{- $menuID := .menuID }}
 
+<nav class="bg-gray-200 dark:bg-neutral shadow-lg">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center py-4">
+      <a href="{{ $page.Site.BaseURL }}" class="flex items-center space-x-2 text-neutral-800 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300">
+        <!-- SVG Icon -->
+        <svg class="h-8 w-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+          <path class="dark:fill-white" opacity=".4"
+            d="M64 373.8c0 15.3 10.8 28.4 25.7 31.4L304 448V32L100.6 2.2C81.3-.7 64 14.3 64 33.8V373.8zM576 33.8c0-19.5-17.3-34.5-36.6-31.7L336 32V448l214.3-42.9c15-3 25.7-16.1 25.7-31.4V33.8z" />
+          <path class="dark:fill-white"
+            d="M89.7 405.1L320 451.2l230.3-46.1c15-3 25.7-16.1 25.7-31.4V28.8l25.7-5.1C621.5 19.7 640 34.8 640 55V421.8c0 15.3-10.8 28.4-25.7 31.4L320 512 25.7 453.1C10.8 450.2 0 437 0 421.8V55C0 34.8 18.5 19.7 38.3 23.7L64 28.8v345c0 15.3 10.8 28.4 25.7 31.4z" />
+        </svg>
+        <span class="text-xl font-bold">RezeptBuck</span>
+      </a>
 
-<nav class="navbar bg-base-100">
-  <div class="flex-1">
-    <a href="{{ $page.Site.BaseURL }}" class="btn btn-ghost text-xl">
-      <!-- SVG Icon -->
-      <svg class="h-8 w-auto" xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 640 512"><!--!Font Awesome Pro 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc.-->
-        <path class="fa-secondary" opacity=".4" fill="#21a6b0"
-          d="M64 373.8c0 15.3 10.8 28.4 25.7 31.4L304 448V32L100.6 2.2C81.3-.7 64 14.3 64 33.8V373.8zM576 33.8c0-19.5-17.3-34.5-36.6-31.7L336 32V448l214.3-42.9c15-3 25.7-16.1 25.7-31.4V33.8z" />
-        <path class="fa-primary" fill="#21a6b0"
-          d="M89.7 405.1L320 451.2l230.3-46.1c15-3 25.7-16.1 25.7-31.4V28.8l25.7-5.1C621.5 19.7 640 34.8 640 55V421.8c0 15.3-10.8 28.4-25.7 31.4L320 512 25.7 453.1C10.8 450.2 0 437 0 421.8V55C0 34.8 18.5 19.7 38.3 23.7L64 28.8v345c0 15.3 10.8 28.4 25.7 31.4z" />
-      </svg>
-      Rezepte
-    </a>
-  </div>
-  <div class="flex-none gap-2">
-    <!-- <div class="form-control">
-      <input type="search" placeholder="Suche" class="input input-bordered w-24 md:w-auto" />
-    </div> -->
-    {{ with index site.Menus $menuID }}
-    <ul class="menu menu-horizontal px-1">
-      <div class="flex gap-2">
-        {{ range . }}
-        <li>
-          <a href="{{ .URL }}">
+      <div class="flex items-center space-x-6">
+        {{ with index site.Menus $menuID }}
+        <div class="flex gap-6">
+          {{ range . }}
+          <a href="{{ .URL }}" 
+             class="text-neutral-700 dark:text-white hover:text-neutral-900 dark:hover:text-neutral-300 font-medium">
             {{ .Name }}
           </a>
-        </li>
+          {{ end }}
+        </div>
         {{ end }}
+        
+        <a href="/search" class="text-neutral-700 dark:text-white hover:text-neutral-900 dark:hover:text-neutral-300 font-medium flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          Suche
+        </a>
       </div>
-    </ul>
-    {{ end }}
+    </div>
   </div>
 </nav>

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const regex = new RegExp(`(${searchQuery})`, 'gi');
                 if (regex.test(text)) {
                     const span = document.createElement('span');
-                    span.innerHTML = text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+                    span.innerHTML = text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
                     node.parentNode.replaceChild(span, node);
                 }
             } else if (node.nodeType === 1) { // Element node
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const marks = document.querySelectorAll('mark');
         if (marks.length > 0) {
             const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'fixed bottom-4 right-4 px-4 py-2 bg-white border shadow-lg rounded-full text-sm hover:bg-gray-50 transition-colors z-50';
+            toggleBtn.className = 'fixed bottom-4 right-4 px-4 py-2 bg-gray-200 dark:bg-neutral border dark:border-neutral-700 shadow-lg rounded-full text-sm hover:bg-gray-300 dark:hover:bg-neutral-700 dark:text-white transition-colors z-50';
             toggleBtn.textContent = 'Markierungen ausblenden';
             toggleBtn.onclick = () => {
                 marks.forEach(mark => {
