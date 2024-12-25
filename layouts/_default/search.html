@@ -19,28 +19,44 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+{{ partial "search-result-template.html" . }}
+
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
+    const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
+    const imageTemplate = document.querySelector('.js-image-template').innerHTML;
+    const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
+    const tagTemplate = document.querySelector('.js-tag-template').innerHTML;
     
-    // URL-Parameter Handling
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialQuery = urlParams.get('q');
-    
-    if (initialQuery) {
-        searchInput.value = initialQuery;
-    }
-    
-    function updateURL(searchTerm) {
-        const params = new URLSearchParams();
-        if (searchTerm) params.set('q', searchTerm);
+    function createSearchResult(result) {
+        let html = resultTemplate;
         
-        const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-        window.history.pushState({}, '', newURL);
+        // Ersetze Platzhalter im Template
+        html = html.replace('{{"{{"}} permalink {{"}}"}}', result.item.permalink)
+                  .replace('{{"{{"}} title {{"}}"}}', highlightText(result.item.title, searchTerm))
+                  .replace('{{"{{"}} description {{"}}"}}', getContextSnippet(result.item.content, searchTerm));
+        
+        // Füge Bild hinzu
+        const imageContainer = document.createElement('div');
+        if (result.item.images && result.item.images.thumb) {
+            imageContainer.innerHTML = imageTemplate
+                .replace('{{"{{"}} imageUrl {{"}}"}}', result.item.images.thumb)
+                .replace('{{"{{"}} imageAlt {{"}}"}}', result.item.title);
+        } else {
+            imageContainer.innerHTML = noImageTemplate;
+        }
+        
+        // Füge Tags hinzu
+        const tagsHtml = result.item.tags ? result.item.tags.map(tag => 
+            tagTemplate.replace('{{"{{"}} tag {{"}}"}}', tag)
+        ).join('') : '';
+        
+        return html.replace('<!-- Tags werden dynamisch eingefügt -->', tagsHtml);
     }
-    
+
+    // Rest der Suchlogik bleibt gleich...
     function highlightText(text, searchTerm) {
         if (!searchTerm) return text;
         const regex = new RegExp(`(${searchTerm})`, 'gi');
@@ -58,140 +74,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const start = Math.max(0, index - 100);
         const end = Math.min(content.length, index + 100);
-        let snippet = content.slice(start, end);
-        
-        if (start > 0) snippet = '...' + snippet;
-        if (end < content.length) snippet = snippet + '...';
-        
-        return highlightText(snippet, searchTerm);
-    }
-    
-    try {
-        const response = await fetch('/index.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        
-        const options = {
-            keys: [{
-                name: 'title',
-                weight: 2
-            }, {
-                name: 'content',
-                weight: 1
-            }, {
-                name: 'tags',
-                weight: 2
-            }],
-            includeScore: true,
-            threshold: 0.2,
-            distance: 100,
-            ignoreLocation: false,
-            useExtendedSearch: true,
-            minMatchCharLength: 3,
-            findAllMatches: false
-        };
-        
-        const fuse = new Fuse(data, options);
-        
-        const performSearch = (searchTerm) => {
-            if (searchTerm.length < 2) {
-                searchResults.innerHTML = '';
-                updateURL('');
-                return;
-            }
-            
-            updateURL(searchTerm);
-            
-            const isExactSearch = searchTerm.startsWith('"') && searchTerm.endsWith('"');
-            if (isExactSearch) {
-                searchTerm = searchTerm.slice(1, -1);
-                options.threshold = 0;
-            } else {
-                options.threshold = 0.2;
-            }
-            
-            const results = fuse.search(searchTerm);
-            const filteredResults = results.filter(result => result.score < 0.4);
-            
-            const uniqueResults = filteredResults.reduce((acc, current) => {
-                const x = acc.find(item => item.item.permalink === current.item.permalink);
-                if (!x) {
-                    return acc.concat([current]);
-                } else {
-                    return acc;
-                }
-            }, []);
-
-            // Anpassen der Grid-Klassen basierend auf der Anzahl der Ergebnisse
-            const gridClasses = uniqueResults.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                              uniqueResults.length === 2 ? 'sm:grid-cols-2 max-w-2xl mx-auto' :
-                              'sm:grid-cols-2 lg:grid-cols-3';
-            searchResults.className = `grid grid-cols-1 gap-6 text-left ${gridClasses}`;
-            
-            searchResults.innerHTML = uniqueResults.length ? 
-                uniqueResults.map(result => {
-                    const tags = result.item.tags ? 
-                        `<div class="flex flex-wrap gap-2 mt-2">
-                            ${result.item.tags.map(tag => 
-                                `<span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white">${tag}</span>`
-                            ).join('')}
-                        </div>` : '';
-                    
-                    const description = result.item.description || getContextSnippet(result.item.content, searchTerm);
-                    
-                    return `
-                        <a href="${result.item.permalink}" 
-                           class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow">
-                            ${result.item.images && result.item.images.thumb ? 
-                                `<div class="aspect-video w-full overflow-hidden">
-                                    <img src="${result.item.images.thumb}" 
-                                         alt="${result.item.title}" 
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                </div>` : 
-                                `<div class="aspect-video w-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>`
-                            }
-                            <div class="p-4">
-                                <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-                                    ${highlightText(result.item.title, searchTerm)}
-                                </h2>
-                                <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2">${description}</p>
-                                ${tags}
-                            </div>
-                        </a>
-                    `;
-                }).join('') :
-                '<p class="text-neutral-500 dark:text-neutral-400 col-span-full text-center">Keine Ergebnisse gefunden.</p>';
-        };
-        
-        // Event Listeners
-        let debounceTimer;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                performSearch(e.target.value);
-            }, 300);
-        });
-        
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch(e.target.value);
-            }
-        });
-        
-        // Initial search if query parameter exists
-        if (initialQuery) {
-            performSearch(initialQuery);
-        }
-        
-    } catch (error) {
-        console.error('Error loading search index:', error);
-        searchResults.innerHTML = '<p class="text-red-500 dark:text-red-400 col-span-full text-center">Fehler beim Laden des Suchindex. Bitte versuchen Sie es später erneut.</p>';
+        return (start > 0 ? '...' : '') + 
+               content.slice(start, end) +
+               (end < content.length ? '...' : '');
     }
 });
 </script>
