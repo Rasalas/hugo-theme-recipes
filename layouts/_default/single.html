@@ -8,7 +8,7 @@
         {{ $dateHuman := .Lastmod.Format "2006-01-02 15:04:05" }}
         <time class="block text-gray-500 mb-6" datetime="{{ $dateMachine }}">{{ $dateHuman }}</time>
 
-        <div class="prose lg:prose-xl max-w-none">
+        <div class="prose lg:prose-xl max-w-none recipe-content">
           {{ .Content }}
         </div>
         
@@ -19,4 +19,5 @@
     </div>
   </div>
 </div>
+{{ partial "search-highlight.html" . }}
 {{ end }}
