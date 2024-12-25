@@ -29,6 +29,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script>
+{{- /* Safe JavaScript */ -}}
 document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
@@ -148,5 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchResults.innerHTML = '<p class="text-red-500 dark:text-red-400 text-center">Fehler beim Laden der Suche.</p>';
     }
 });
+{{- /* End Safe JavaScript */ -}}
 </script>
 {{ end }}
