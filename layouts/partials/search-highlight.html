@@ -1,0 +1,58 @@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+    const noHighlight = urlParams.get('noHighlight') === 'true';
+    
+    if (searchQuery && !noHighlight) {
+        function highlightText(node) {
+            if (node.nodeType === 3) { // Text node
+                const text = node.nodeValue;
+                const regex = new RegExp(`(${searchQuery})`, 'gi');
+                if (regex.test(text)) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } else if (node.nodeType === 1) { // Element node
+                // Skip script tags and existing highlights
+                if (node.tagName !== 'SCRIPT' && node.tagName !== 'MARK') {
+                    Array.from(node.childNodes).forEach(highlightText);
+                }
+            }
+        }
+        
+        // Highlight title
+        const title = document.querySelector('.card-title');
+        if (title) {
+            Array.from(title.childNodes).forEach(highlightText);
+        }
+        
+        // Highlight content
+        const content = document.querySelector('.recipe-content');
+        if (content) {
+            Array.from(content.childNodes).forEach(highlightText);
+        }
+        
+        // Add toggle button if we have any highlights
+        const marks = document.querySelectorAll('mark');
+        if (marks.length > 0) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'fixed bottom-4 right-4 px-4 py-2 bg-white border shadow-lg rounded-full text-sm hover:bg-gray-50 transition-colors z-50';
+            toggleBtn.textContent = 'Markierungen ausblenden';
+            toggleBtn.onclick = () => {
+                marks.forEach(mark => {
+                    if (mark.style.display === 'none') {
+                        mark.style.display = '';
+                        toggleBtn.textContent = 'Markierungen ausblenden';
+                    } else {
+                        mark.style.display = 'none';
+                        toggleBtn.textContent = 'Markierungen einblenden';
+                    }
+                });
+            };
+            document.body.appendChild(toggleBtn);
+        }
+    }
+});
+</script> 

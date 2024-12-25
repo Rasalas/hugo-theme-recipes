@@ -1,0 +1,194 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Suche</h1>
+    
+    <div class="mb-8">
+        <div class="relative">
+            <input type="text" id="search-input" 
+                   class="w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Suchbegriff eingeben...">
+            <button id="clear-highlights" 
+                    class="absolute right-4 top-1/2 transform -translate-y-1/2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full hidden">
+                Markierungen ausblenden
+            </button>
+        </div>
+    </div>
+
+    <div id="search-results" class="space-y-6">
+        <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const clearHighlightsBtn = document.getElementById('clear-highlights');
+    
+    // URL-Parameter Handling
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialQuery = urlParams.get('q');
+    const highlightsDisabled = urlParams.get('noHighlight') === 'true';
+    
+    if (initialQuery) {
+        searchInput.value = initialQuery;
+    }
+    
+    function updateURL(searchTerm, noHighlight = false) {
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('q', searchTerm);
+        if (noHighlight) params.set('noHighlight', 'true');
+        
+        const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        window.history.pushState({}, '', newURL);
+    }
+    
+    function highlightText(text, searchTerm) {
+        if (!searchTerm || highlightsDisabled) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+    }
+
+    function getContextSnippet(content, searchTerm, maxLength = 200) {
+        if (!content || !searchTerm) return '';
+        
+        const lowerContent = content.toLowerCase();
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        const index = lowerContent.indexOf(lowerSearchTerm);
+        
+        if (index === -1) return content.slice(0, maxLength) + '...';
+        
+        const start = Math.max(0, index - 100);
+        const end = Math.min(content.length, index + 100);
+        let snippet = content.slice(start, end);
+        
+        if (start > 0) snippet = '...' + snippet;
+        if (end < content.length) snippet = snippet + '...';
+        
+        return highlightText(snippet, searchTerm);
+    }
+    
+    try {
+        const response = await fetch('/index.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        const options = {
+            keys: [{
+                name: 'title',
+                weight: 2
+            }, {
+                name: 'content',
+                weight: 1
+            }, {
+                name: 'tags',
+                weight: 2
+            }],
+            includeScore: true,
+            threshold: 0.2,
+            distance: 100,
+            ignoreLocation: false,
+            useExtendedSearch: true,
+            minMatchCharLength: 3,
+            findAllMatches: false
+        };
+        
+        const fuse = new Fuse(data, options);
+        
+        const performSearch = (searchTerm) => {
+            if (searchTerm.length < 2) {
+                searchResults.innerHTML = '';
+                clearHighlightsBtn.classList.add('hidden');
+                updateURL('');
+                return;
+            }
+            
+            updateURL(searchTerm, highlightsDisabled);
+            
+            const isExactSearch = searchTerm.startsWith('"') && searchTerm.endsWith('"');
+            if (isExactSearch) {
+                searchTerm = searchTerm.slice(1, -1);
+                options.threshold = 0;
+            } else {
+                options.threshold = 0.2;
+            }
+            
+            const results = fuse.search(searchTerm);
+            const filteredResults = results.filter(result => result.score < 0.4);
+            
+            const uniqueResults = filteredResults.reduce((acc, current) => {
+                const x = acc.find(item => item.item.permalink === current.item.permalink);
+                if (!x) {
+                    return acc.concat([current]);
+                } else {
+                    return acc;
+                }
+            }, []);
+            
+            clearHighlightsBtn.classList.toggle('hidden', uniqueResults.length === 0);
+            
+            searchResults.innerHTML = uniqueResults.length ? 
+                uniqueResults.map(result => {
+                    const tags = result.item.tags ? 
+                        `<div class="flex flex-wrap gap-2 mt-2">
+                            ${result.item.tags.map(tag => 
+                                `<span class="px-2 py-1 bg-gray-100 text-sm rounded-full">${tag}</span>`
+                            ).join('')}
+                        </div>` : '';
+                    
+                    const contextSnippet = getContextSnippet(result.item.content, searchTerm);
+                    const highlightParam = highlightsDisabled ? '&noHighlight=true' : '';
+                    
+                    return `
+                        <div class="p-4 border rounded-lg hover:shadow-md transition-shadow bg-white">
+                            <a href="${result.item.permalink}?q=${encodeURIComponent(searchTerm)}${highlightParam}" class="block">
+                                <h2 class="text-xl font-semibold mb-2 text-blue-600 hover:text-blue-800">
+                                    ${highlightText(result.item.title, searchTerm)}
+                                </h2>
+                                <p class="text-gray-600 mb-2 text-sm">${contextSnippet}</p>
+                                ${tags}
+                            </a>
+                        </div>
+                    `;
+                }).join('') :
+                '<p class="text-gray-500">Keine Ergebnisse gefunden.</p>';
+        };
+        
+        // Toggle Highlights Button
+        clearHighlightsBtn.addEventListener('click', () => {
+            highlightsDisabled = !highlightsDisabled;
+            clearHighlightsBtn.textContent = highlightsDisabled ? 'Markierungen einblenden' : 'Markierungen ausblenden';
+            updateURL(searchInput.value, highlightsDisabled);
+            performSearch(searchInput.value);
+        });
+        
+        // Event Listeners
+        let debounceTimer;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 300); // Debounce von 300ms
+        });
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch(e.target.value);
+            }
+        });
+        
+        // Initial search if query parameter exists
+        if (initialQuery) {
+            performSearch(initialQuery);
+        }
+        
+    } catch (error) {
+        console.error('Error loading search index:', error);
+        searchResults.innerHTML = '<p class="text-red-500">Fehler beim Laden des Suchindex. Bitte versuchen Sie es später erneut.</p>';
+    }
+});
+</script>
+{{ end }} 
