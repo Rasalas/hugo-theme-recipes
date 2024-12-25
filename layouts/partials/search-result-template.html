@@ -1,14 +1,13 @@
 <div class="js-search-result-template hidden">
-  <a href="{{"{{"}} permalink {{"}}"}}" 
+  <a href="#" data-permalink="" 
      class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow">
     <div class="js-image-container">
       <!-- Image template wird dynamisch eingefügt -->
     </div>
     <div class="p-4">
-      <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-        {{"{{"}} title {{"}}"}}
+      <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200" data-title="">
       </h2>
-      <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2">{{"{{"}} description {{"}}"}}</p>
+      <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2" data-description=""></p>
       <div class="js-tags-container">
         <!-- Tags werden dynamisch eingefügt -->
       </div>
@@ -18,8 +17,10 @@
 
 <div class="js-image-template hidden">
   <div class="aspect-video w-full overflow-hidden">
-    <img src="{{"{{"}} imageUrl {{"}}"}}" 
-         alt="{{"{{"}} imageAlt {{"}}"}}" 
+    <img src="#" 
+         alt=""
+         data-src=""
+         data-alt="" 
          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
   </div>
 </div>
@@ -33,5 +34,5 @@
 </div>
 
 <div class="js-tag-template hidden">
-  <span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white">{{"{{"}} tag {{"}}"}}</span>
+  <span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white" data-tag=""></span>
 </div> 
