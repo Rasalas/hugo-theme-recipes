@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
     const imageTemplate = document.querySelector('.js-image-template').innerHTML;
     const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
-    const tagTemplate = document.querySelector('.js-tag-template').innerHTML;
     
     function createSearchResult(result, searchTerm) {
         const container = document.createElement('div');
@@ -29,16 +28,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (result.item.description) {
             element.querySelector('[data-description]').innerHTML = highlightText(result.item.description, searchTerm);
+        } else if (result.item.content) {
+            const preview = result.item.content.substring(0, 200) + '...';
+            element.querySelector('[data-description]').innerHTML = highlightText(preview, searchTerm);
         }
         
         if (result.item.tags && result.item.tags.length > 0) {
             const tagsContainer = element.querySelector('.js-tags-container');
+            tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-auto');
             const tagsHtml = result.item.tags.map(tag => {
-                const tagContainer = document.createElement('div');
-                tagContainer.innerHTML = tagTemplate;
-                const tagElement = tagContainer.firstElementChild;
-                tagElement.textContent = tag;
-                return tagElement.outerHTML;
+                return `<span class="badge badge-outline m-1 no-underline">${tag}</span>`;
             }).join('');
             tagsContainer.innerHTML = tagsHtml;
         }
