@@ -6,6 +6,24 @@
              alt="{{ .Title }}" 
              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     </div>
+    {{ else if .Title }}
+        <div class="aspect-video w-full bg-neutral-800 dark:bg-neutral-900 overflow-hidden relative">
+            <div class="absolute inset-0 flex flex-wrap content-start overflow-hidden opacity-20 -mt-12 -mb-8">
+                {{ $cleanTitle := upper (replaceRE "[^\\p{L}0-9 ]" "" .Title) }}
+                {{ $cleanTitle := replaceRE "\\s+" " " $cleanTitle }}
+                {{ $cleanTitle := replace $cleanTitle "ß" "ẞ" }}
+                {{ $repeatedTitle := "" }}
+                {{ range seq 30 }}
+                    {{ $repeatedTitle = printf "%s %s" $repeatedTitle $cleanTitle }}
+                {{ end }}
+                {{ range $index, $_ := seq 12 }}
+                    {{ $offset := sub (mul $index 4) 36 }}
+                    <div class="w-full whitespace-nowrap text-2xl font-bold font-mono text-white" style="transform:translateX({{ $offset }}rem)">
+                        {{ $repeatedTitle }}
+                    </div>
+                {{ end }}
+            </div>
+        </div>
     {{ else }}
     <div class="aspect-video w-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center">
         <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
