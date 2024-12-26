@@ -23,7 +23,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             img.setAttribute('alt', result.item.title);
             imageContainer.appendChild(imgContainer.firstElementChild);
         } else {
-            imageContainer.innerHTML = noImageTemplate;
+            const noImgContainer = document.createElement('div');
+            noImgContainer.innerHTML = noImageTemplate;
+            const titleBackground = noImgContainer.querySelector('[data-title-background]');
+            
+            // Clean and prepare the title
+            const cleanTitle = result.item.title
+                .replace(/[^a-zA-ZäöüßÄÖÜẞ0-9\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .replace(/ß/g, 'ẞ')
+                .toUpperCase();
+            
+            // Create repeated title
+            const repeatedTitle = Array(30).fill(cleanTitle).join(' ');
+            
+            // Create rows with different offsets
+            for (let i = 0; i < 12; i++) {
+                const offset = i * 4 - 36;
+                const row = document.createElement('div');
+                row.className = 'w-full whitespace-nowrap text-2xl font-bold font-mono text-white';
+                row.style.transform = `translateX(${offset}rem)`;
+                row.textContent = repeatedTitle;
+                titleBackground.appendChild(row);
+            }
+            
+            imageContainer.appendChild(noImgContainer.firstElementChild);
         }
         
         if (result.item.description) {
@@ -35,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (result.item.tags && result.item.tags.length > 0) {
             const tagsContainer = element.querySelector('.js-tags-container');
-            tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-auto');
+            tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2');
             const tagsHtml = result.item.tags.map(tag => {
                 return `<span class="badge badge-outline m-1 no-underline">${tag}</span>`;
             }).join('');
