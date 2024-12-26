@@ -82,8 +82,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const searchTerm = e.target.value.trim();
-                if (searchTerm.length < 2) {
+                if (searchTerm.length === 0) {
                     showAllRecipes();
+                    return;
+                }
+                
+                if (searchTerm.length < 2) {
                     return;
                 }
                 
