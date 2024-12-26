@@ -1,32 +1,63 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
+    const allRecipes = document.getElementById('all-recipes');
+    const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
+    const imageTemplate = document.querySelector('.js-image-template').innerHTML;
+    const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
+    const tagTemplate = document.querySelector('.js-tag-template').innerHTML;
     
+    function createSearchResult(result, searchTerm) {
+        const container = document.createElement('div');
+        container.innerHTML = resultTemplate;
+        const element = container.firstElementChild;
+        
+        element.setAttribute('href', result.item.permalink);
+        element.querySelector('[data-title]').innerHTML = highlightText(result.item.title, searchTerm);
+        
+        const imageContainer = element.querySelector('.js-image-container');
+        if (result.item.images && result.item.images.thumb) {
+            const imgContainer = document.createElement('div');
+            imgContainer.innerHTML = imageTemplate;
+            const img = imgContainer.querySelector('img');
+            img.setAttribute('src', result.item.images.thumb);
+            img.setAttribute('alt', result.item.title);
+            imageContainer.appendChild(imgContainer.firstElementChild);
+        } else {
+            imageContainer.innerHTML = noImageTemplate;
+        }
+        
+        if (result.item.description) {
+            element.querySelector('[data-description]').innerHTML = highlightText(result.item.description, searchTerm);
+        }
+        
+        if (result.item.tags && result.item.tags.length > 0) {
+            const tagsContainer = element.querySelector('.js-tags-container');
+            const tagsHtml = result.item.tags.map(tag => {
+                const tagContainer = document.createElement('div');
+                tagContainer.innerHTML = tagTemplate;
+                const tagElement = tagContainer.firstElementChild;
+                tagElement.textContent = tag;
+                return tagElement.outerHTML;
+            }).join('');
+            tagsContainer.innerHTML = tagsHtml;
+        }
+        
+        return element.outerHTML;
+    }
+
+    function showAllRecipes() {
+        searchResults.classList.add('hidden');
+        allRecipes.classList.remove('hidden');
+        searchInput.value = '';
+    }
+
     function highlightText(text, searchTerm) {
         if (!searchTerm) return text;
         const regex = new RegExp(`(${searchTerm})`, 'gi');
         return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
     }
 
-    function getContextSnippet(content, searchTerm, maxLength = 200) {
-        if (!content || !searchTerm) return '';
-        
-        const lowerContent = content.toLowerCase();
-        const lowerSearchTerm = searchTerm.toLowerCase();
-        const index = lowerContent.indexOf(lowerSearchTerm);
-        
-        if (index === -1) return content.slice(0, maxLength) + '...';
-        
-        const start = Math.max(0, index - 100);
-        const end = Math.min(content.length, index + 100);
-        let snippet = content.slice(start, end);
-        
-        if (start > 0) snippet = '...' + snippet;
-        if (end < content.length) snippet = snippet + '...';
-        
-        return highlightText(snippet, searchTerm);
-    }
-    
     try {
         const response = await fetch('/index.json');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -35,25 +66,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fuse = new Fuse(data, {
             keys: [
                 { name: 'title', weight: 2 },
-                { name: 'content', weight: 1 },
-                { name: 'tags', weight: 2 }
+                { name: 'description', weight: 1.5 },
+                { name: 'tags', weight: 1 }
             ],
             includeScore: true,
             threshold: 0.3,
             distance: 100,
             ignoreLocation: false,
             useExtendedSearch: true,
-            minMatchCharLength: 3,
-            findAllMatches: false
+            minMatchCharLength: 2
         });
         
         let debounceTimer;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                const searchTerm = e.target.value;
+                const searchTerm = e.target.value.trim();
                 if (searchTerm.length < 2) {
-                    searchResults.innerHTML = '';
+                    showAllRecipes();
                     return;
                 }
                 
@@ -67,48 +97,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } else {
                         return acc;
                     }
-                }, []).slice(0, 5);
+                }, []);
 
-                const gridClasses = uniqueResults.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                                  uniqueResults.length === 2 ? 'sm:grid-cols-2 max-w-2xl mx-auto' :
-                                  'sm:grid-cols-2 lg:grid-cols-3';
-                searchResults.className = `grid grid-cols-1 gap-6 text-left ${gridClasses}`;
+                searchResults.classList.remove('hidden');
+                allRecipes.classList.add('hidden');
                 
-                searchResults.innerHTML = uniqueResults.length ? 
-                    uniqueResults.map(result => `
-                        <a href="${result.item.permalink}" class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow">
-                            ${result.item.images && result.item.images.thumb ? 
-                                `<div class="aspect-video w-full overflow-hidden">
-                                    <img src="${result.item.images.thumb}" 
-                                         alt="${result.item.title}" 
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                </div>` : 
-                                `<div class="aspect-video w-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>`
-                            }
-                            <div class="p-4">
-                                <h3 class="text-lg font-semibold mb-2 text-neutral-700 hover:text-neutral-900 dark:text-white">
-                                    ${highlightText(result.item.title, searchTerm)}
-                                </h3>
-                                <p class="text-neutral-600 dark:text-neutral-300 mb-2 text-sm">
-                                    ${getContextSnippet(result.item.content, searchTerm)}
-                                </p>
-                                ${result.item.tags ? 
-                                    `<div class="flex flex-wrap gap-2">
-                                        ${result.item.tags.slice(0, 3).map(tag => 
-                                            `<span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white">${tag}</span>`
-                                        ).join('')}
-                                    </div>` : ''
-                                }
-                            </div>
-                        </a>
-                    `).join('') :
-                    '<p class="text-neutral-500 dark:text-neutral-400 text-center col-span-full">Keine Ergebnisse gefunden.</p>';
+                if (uniqueResults.length) {
+                    searchResults.innerHTML = uniqueResults.map(result => createSearchResult(result, searchTerm)).join('');
+                } else {
+                    searchResults.innerHTML = `
+                        <div class="col-span-full text-center">
+                            <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
+                            <button onclick="window.showAllRecipes()" 
+                                    class="btn btn-outline btn-neutral">
+                                Alle Rezepte anzeigen
+                            </button>
+                        </div>
+                    `;
+                }
             }, 300);
         });
+
+        // Expose showAllRecipes to window for the button click
+        window.showAllRecipes = showAllRecipes;
         
     } catch (error) {
         console.error('Error loading search index:', error);

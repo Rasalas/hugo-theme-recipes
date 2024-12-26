@@ -2,16 +2,6 @@ baseURL = 'https://example.org/'
 languageCode = 'de-de'
 title = 'Recipes'
 
-[[menus.main]]
-name = 'Übersicht'
-pageRef = '/recipe'
-weight = 20
-
-#[[menus.main]]
-#name = 'Tags'
-#pageRef = '/tags'
-#weight = 30
-
 [module]
   [module.hugoVersion]
     extended = false

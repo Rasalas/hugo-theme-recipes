@@ -1,32 +1,23 @@
 {{ define "main" }}
-  <div class="hero min-h-screen bg-base-200">
-    <div class="hero-content w-full max-w-5xl">
-      <div class="w-full">
-        <div class="text-center">
-          <h1 class="text-6xl font-bold mb-8">RezeptBuck</h1>
-          <p class="text-xl mb-8">Unser digitales Rezeptbuch - eine Sammlung unserer Lieblingsrezepte zum Nachkochen und Genießen 📚</p>
-        </div>
-        
-        <div class="mb-8 max-w-2xl mx-auto">
-          <div class="relative">
-            <input type="text" id="search-input" 
-                   class="w-full p-4 text-lg border rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-neutral-500 bg-gray-100 dark:bg-neutral dark:text-white dark:border-neutral-700"
-                   placeholder="Nach Rezepten suchen...">
-          </div>
+<div class="min-h-screen bg-base-200 p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Suchleiste -->
+        {{ partial "search-input.html" . }}
+
+        <!-- Suchergebnisse -->
+        <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
+            <!-- Suchergebnisse werden hier dynamisch eingefügt -->
         </div>
 
-        <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-          <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+        <!-- Liste aller Rezepte -->
+        <div id="all-recipes">
+            {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
         </div>
-
-        <div class="mt-8 text-center">
-          <a href="{{ .Site.BaseURL }}recipe" class="btn btn-primary mr-4">Alle Rezepte ansehen</a>
-          <a href="{{ .Site.BaseURL }}tags" class="btn btn-secondary">Nach Kategorien stöbern</a>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
+
+{{ partial "search-result-template.html" . }}
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="{{ .Site.BaseURL }}js/search.js"></script>
+<script src="/js/search.js"></script>
 {{ end }}
