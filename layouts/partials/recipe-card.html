@@ -1,8 +1,8 @@
 {{ $recipe := . }}
 <a href="{{ .RelPermalink }}" class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-    {{ if .Params.images.thumb }}
+    {{ if .Params.featured_image }}
     <div class="aspect-video w-full overflow-hidden">
-        <img src="{{ .Params.images.thumb }}" 
+        <img src="{{ .Params.featured_image }}" 
              alt="{{ .Title }}" 
              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     </div>
