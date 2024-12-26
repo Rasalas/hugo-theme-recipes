@@ -1,5 +1,5 @@
 {{ $recipe := . }}
-<a href="{{ .RelPermalink }}" class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow">
+<a href="{{ .RelPermalink }}" class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
     {{ if .Params.images.thumb }}
     <div class="aspect-video w-full overflow-hidden">
         <img src="{{ .Params.images.thumb }}" 
@@ -13,17 +13,17 @@
         </svg>
     </div>
     {{ end }}
-    <div class="p-4">
+    <div class="p-4 flex flex-col flex-grow">
         <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
             {{ .Title }}
         </h2>
         {{ if .Params.description }}
         <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2">{{ .Params.description }}</p>
         {{ end }}
-        {{ if .Params.tags }}
-        <div class="flex flex-wrap gap-2">
-            {{ range .Params.tags }}
-            <span class="px-2 py-1 bg-gray-200 dark:bg-neutral-700 text-sm rounded-full dark:text-white">{{ . }}</span>
+        {{ with .GetTerms "tags" }}
+        <div class="flex flex-wrap gap-2 mt-auto">
+            {{ range . }}
+                {{ partial "tag-badge.html" . }}
             {{ end }}
         </div>
         {{ end }}
