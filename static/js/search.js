@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             imgContainer.innerHTML = imageTemplate;
             const img = imgContainer.querySelector('img');
             img.setAttribute('src', result.item.images.thumb);
+            img.setAttribute('data-src', result.item.images.thumb);
             img.setAttribute('alt', result.item.title);
+            img.setAttribute('data-alt', result.item.title);
             imageContainer.appendChild(imgContainer.firstElementChild);
         } else {
             const noImgContainer = document.createElement('div');
