@@ -1,10 +1,10 @@
 {{ define "main" }}
 <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
     <article class="prose prose-neutral lg:prose-lg dark:prose-invert max-w-none">
-        {{ if .Params.featured_image }}
+        {{ if .Params.image }}
         <div class="aspect-video w-full overflow-hidden rounded-lg -mt-4 mb-8 not-prose print:hidden">
-            <a href="{{ .Params.featured_image }}" target="_blank" class="block w-full h-full">
-                <img src="{{ .Params.featured_image }}" 
+            <a href="{{ .Params.image }}" target="_blank" class="block w-full h-full">
+                <img src="{{ .Params.image }}" 
                      alt="{{ .Title }}" 
                      class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
             </a>
