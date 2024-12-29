@@ -136,6 +136,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // Scroll nach oben wenn wir suchen
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
         const results = fuse.search(searchTerm);
         const filteredResults = results.filter(result => result.score < 0.4);
         
@@ -192,8 +198,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const initialSearchTerm = urlParams.get('q');
         if (initialSearchTerm) {
             searchInput.value = initialSearchTerm;
-            clearButton.classList.remove('hidden');
-            await performSearch(initialSearchTerm, false);
+            clearButton?.classList.remove('hidden');
+            performSearch(initialSearchTerm, false); // Direkt suchen, ohne History-Update
         }
         
         let debounceTimer;
@@ -255,4 +261,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Expose scrollToTop to window for the button click
     window.scrollToTop = scrollToTop;
+
+    // Füge Event Listener für Browser-Navigation hinzu
+    window.addEventListener('popstate', function() {
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const allRecipes = document.getElementById('all-recipes');
+        
+        // Setze Suche zurück
+        searchInput.value = '';
+        searchResults.classList.add('hidden');
+        allRecipes.classList.remove('hidden');
+    });
 }); 

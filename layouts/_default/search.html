@@ -1,155 +1,27 @@
 {{ define "main" }}
-<div class="hero min-h-screen bg-base-200">
-    <div class="hero-content w-full max-w-5xl">
-        <div class="w-full">
-            <h1 class="text-3xl font-bold mb-8 dark:text-white text-center">Suche</h1>
-            
-            <div class="mb-8 max-w-2xl mx-auto">
-                <div class="relative">
-                    <input type="text" id="search-input" 
-                           class="w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 bg-gray-200 dark:bg-neutral dark:text-white dark:border-neutral-700"
-                           placeholder="Suchbegriff eingeben...">
-                </div>
+<div class="min-h-screen bg-base-200">
+    <div class="pt-16 md:pt-8 pb-4 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Suchergebnisse -->
+            <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
+                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
             </div>
 
-            <div id="search-results" class="grid grid-cols-1 gap-6 text-left">
-                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+            <!-- Alle Rezepte (werden ausgeblendet bei Suche) -->
+            <div id="all-recipes">
+                {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
             </div>
         </div>
     </div>
 </div>
 
+<!-- Nach oben Button -->
+<button id="toTopButton" onclick="scrollToTop()" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;" class="bg-gray-700 w-12 h-12 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 invisible flex items-center justify-center text-2xl hover:bg-gray-600">
+    ↑
+</button>
+
 {{ partial "search-result-template.html" . }}
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const searchInput = document.getElementById('search-input');
-    const searchResults = document.getElementById('search-results');
-    const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
-    const imageTemplate = document.querySelector('.js-image-template').innerHTML;
-    const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
-    const tagTemplate = document.querySelector('.js-tag-template').innerHTML;
-    
-    function createSearchResult(result, searchTerm) {
-        const container = document.createElement('div');
-        container.innerHTML = resultTemplate;
-        const element = container.firstElementChild;
-        
-        // Setze die Werte
-        element.setAttribute('href', result.item.permalink);
-        element.querySelector('[data-title]').innerHTML = highlightText(result.item.title, searchTerm);
-        element.querySelector('[data-description]').innerHTML = getContextSnippet(result.item.content, searchTerm);
-        
-        // Füge Bild hinzu
-        const imageContainer = element.querySelector('.js-image-container');
-        if (result.item.images && result.item.images.thumb) {
-            const imgContainer = document.createElement('div');
-            imgContainer.innerHTML = imageTemplate;
-            const img = imgContainer.querySelector('img');
-            img.setAttribute('src', result.item.images.thumb);
-            img.setAttribute('alt', result.item.title);
-            imageContainer.appendChild(imgContainer.firstElementChild);
-        } else {
-            imageContainer.innerHTML = noImageTemplate;
-        }
-        
-        // Füge Tags hinzu
-        if (result.item.tags && result.item.tags.length > 0) {
-            const tagsContainer = element.querySelector('.js-tags-container');
-            const tagsHtml = result.item.tags.map(tag => {
-                const tagContainer = document.createElement('div');
-                tagContainer.innerHTML = tagTemplate;
-                const tagElement = tagContainer.firstElementChild;
-                tagElement.textContent = tag;
-                return tagElement.outerHTML;
-            }).join('');
-            tagsContainer.innerHTML = tagsHtml;
-        }
-        
-        return element.outerHTML;
-    }
-
-    try {
-        const response = await fetch('/index.json');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        
-        const fuse = new Fuse(data, {
-            keys: [
-                { name: 'title', weight: 2 },
-                { name: 'content', weight: 1 },
-                { name: 'tags', weight: 2 }
-            ],
-            includeScore: true,
-            threshold: 0.3,
-            distance: 100,
-            ignoreLocation: false,
-            useExtendedSearch: true,
-            minMatchCharLength: 3,
-            findAllMatches: false
-        });
-        
-        let debounceTimer;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                const searchTerm = e.target.value;
-                if (searchTerm.length < 2) {
-                    searchResults.innerHTML = '';
-                    return;
-                }
-                
-                const results = fuse.search(searchTerm);
-                const filteredResults = results.filter(result => result.score < 0.4);
-                
-                // Deduplizierung der Ergebnisse basierend auf der Permalink
-                const uniqueResults = filteredResults.reduce((acc, current) => {
-                    const x = acc.find(item => item.item.permalink === current.item.permalink);
-                    if (!x) {
-                        return acc.concat([current]);
-                    } else {
-                        return acc;
-                    }
-                }, []).slice(0, 5);
-
-                const gridClasses = uniqueResults.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                                  uniqueResults.length === 2 ? 'sm:grid-cols-2 max-w-2xl mx-auto' :
-                                  'sm:grid-cols-2 lg:grid-cols-3';
-                searchResults.className = `grid grid-cols-1 gap-6 text-left ${gridClasses}`;
-                
-                searchResults.innerHTML = uniqueResults.length ? 
-                    uniqueResults.map(result => createSearchResult(result, searchTerm)).join('') :
-                    '<p class="text-neutral-500 dark:text-neutral-400 text-center col-span-full">Keine Ergebnisse gefunden.</p>';
-            }, 300);
-        });
-        
-    } catch (error) {
-        console.error('Error loading search index:', error);
-        searchResults.innerHTML = '<p class="text-red-500 dark:text-red-400 text-center">Fehler beim Laden der Suche.</p>';
-    }
-
-    function highlightText(text, searchTerm) {
-        if (!searchTerm) return text;
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
-    }
-
-    function getContextSnippet(content, searchTerm, maxLength = 200) {
-        if (!content || !searchTerm) return '';
-        
-        const lowerContent = content.toLowerCase();
-        const lowerSearchTerm = searchTerm.toLowerCase();
-        const index = lowerContent.indexOf(lowerSearchTerm);
-        
-        if (index === -1) return content.slice(0, maxLength) + '...';
-        
-        const start = Math.max(0, index - 100);
-        const end = Math.min(content.length, index + 100);
-        return (start > 0 ? '...' : '') + 
-               content.slice(start, end) +
-               (end < content.length ? '...' : '');
-    }
-});
-</script>
+<script src="/js/search.js"></script>
 {{ end }} 

@@ -10,33 +10,48 @@ Renders a menu for the given menu ID.
 {{- $page := .page }}
 {{- $menuID := .menuID }}
 
-<nav class="bg-gray-200 dark:bg-neutral shadow-lg">
+<nav class="bg-base-100 shadow-lg">
   <div class="container mx-auto px-4">
-    <div class="flex justify-between items-center py-4">
-      <a href="{{ $page.Site.BaseURL }}" class="flex items-center space-x-2 text-neutral-800 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300">
-        <!-- SVG Icon -->
-        <svg class="h-8 w-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path class="dark:fill-white" opacity=".4"
-            d="M64 373.8c0 15.3 10.8 28.4 25.7 31.4L304 448V32L100.6 2.2C81.3-.7 64 14.3 64 33.8V373.8zM576 33.8c0-19.5-17.3-34.5-36.6-31.7L336 32V448l214.3-42.9c15-3 25.7-16.1 25.7-31.4V33.8z" />
-          <path class="dark:fill-white"
-            d="M89.7 405.1L320 451.2l230.3-46.1c15-3 25.7-16.1 25.7-31.4V28.8l25.7-5.1C621.5 19.7 640 34.8 640 55V421.8c0 15.3-10.8 28.4-25.7 31.4L320 512 25.7 453.1C10.8 450.2 0 437 0 421.8V55C0 34.8 18.5 19.7 38.3 23.7L64 28.8v345c0 15.3 10.8 28.4 25.7 31.4z" />
-        </svg>
-        <span class="text-xl font-bold">RezeptBuck</span>
-      </a>
+    <div class="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
+      <div class="flex justify-between w-full md:w-auto">
+        <a href="{{ $page.Site.BaseURL }}" class="flex items-center space-x-2 text-neutral-800 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300">
+          <!-- SVG Icon -->
+          <svg class="h-8 w-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+            <path class="dark:fill-white" opacity=".4"
+              d="M64 373.8c0 15.3 10.8 28.4 25.7 31.4L304 448V32L100.6 2.2C81.3-.7 64 14.3 64 33.8V373.8zM576 33.8c0-19.5-17.3-34.5-36.6-31.7L336 32V448l214.3-42.9c15-3 25.7-16.1 25.7-31.4V33.8z" />
+            <path class="dark:fill-white"
+              d="M89.7 405.1L320 451.2l230.3-46.1c15-3 25.7-16.1 25.7-31.4V28.8l25.7-5.1C621.5 19.7 640 34.8 640 55V421.8c0 15.3-10.8 28.4-25.7 31.4L320 512 25.7 453.1C10.8 450.2 0 437 0 421.8V55C0 34.8 18.5 19.7 38.3 23.7L64 28.8v345c0 15.3 10.8 28.4 25.7 31.4z" />
+          </svg>
+          <span class="text-xl font-bold">RezeptBuck</span>
+        </a>
+        
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-button" class="md:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-16 6h16"></path>
+          </svg>
+        </button>
+      </div>
 
-      <div class="flex items-center space-x-6">
+      <!-- Suchleiste -->
+      <div class="w-full md:flex-1 md:max-w-xl">
+        {{ partial "search-input.html" $page }}
+      </div>
+
+      <!-- Navigation Links -->
+      <div id="mobile-menu" class="hidden md:flex w-full md:w-auto items-center space-y-4 md:space-y-0 md:space-x-6">
         {{ with index site.Menus $menuID }}
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
           {{ range . }}
           <a href="{{ .URL }}" 
-             class="text-neutral-700 dark:text-white hover:text-neutral-900 dark:hover:text-neutral-300 font-medium">
+             class="text-base-content hover:text-primary font-medium">
             {{ .Name }}
           </a>
           {{ end }}
         </div>
         {{ end }}
         
-        <a href="/tags" class="text-neutral-700 dark:text-white hover:text-neutral-900 dark:hover:text-neutral-300 font-medium flex items-center">
+        <a href="/tags" class="text-base-content hover:text-primary font-medium flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
           </svg>
@@ -46,3 +61,10 @@ Renders a menu for the given menu ID.
     </div>
   </div>
 </nav>
+
+<script>
+document.getElementById('mobile-menu-button').addEventListener('click', function() {
+    const menu = document.getElementById('mobile-menu');
+    menu.classList.toggle('hidden');
+});
+</script>

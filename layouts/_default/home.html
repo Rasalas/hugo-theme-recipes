@@ -1,17 +1,16 @@
 {{ define "main" }}
-<div class="min-h-screen bg-base-200 p-4">
-    <div class="max-w-7xl mx-auto">
-        <!-- Suchleiste -->
-        {{ partial "search-input.html" . }}
+<div class="min-h-screen bg-base-200">
+    <div class="pt-16 md:pt-8 pb-4 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Liste aller Rezepte -->
+            <div id="all-recipes">
+                {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
+            </div>
 
-        <!-- Suchergebnisse -->
-        <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
-            <!-- Suchergebnisse werden hier dynamisch eingefügt -->
-        </div>
-
-        <!-- Liste aller Rezepte -->
-        <div id="all-recipes">
-            {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
+            <!-- Suchergebnisse -->
+            <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
+                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+            </div>
         </div>
     </div>
 </div>
