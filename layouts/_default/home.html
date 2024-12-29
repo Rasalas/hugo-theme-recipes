@@ -16,8 +16,10 @@
 </div>
 
 <!-- Nach oben Button -->
-<button id="toTopButton" onclick="scrollToTop()" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;" class="bg-gray-700 w-12 h-12 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 invisible flex items-center justify-center text-2xl hover:bg-gray-600">
-    ↑
+<button id="toTopButton" onclick="scrollToTop()" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;" class="bg-gray-700 w-12 h-12 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 invisible flex items-center justify-center hover:bg-gray-600">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+    </svg>
 </button>
 
 {{ partial "search-result-template.html" . }}
