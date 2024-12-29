@@ -24,8 +24,14 @@ window.addEventListener('scroll', () => {
     // Prüfe, ob die Sticky-Duration noch aktiv ist
     const isSticky = (currentTime - lastShowTime) < STICKY_DURATION;
     
-    if (currentScroll > lastScrollTop && !isSticky) {
-        // Nach unten scrollen (nur wenn nicht sticky)
+    // Immer anzeigen, wenn ganz oben
+    if (currentScroll <= 0) {
+        scrollDirection = 'up';
+        navbar.style.transform = 'translateY(0)';
+        navbar.style.transition = 'transform 0.3s ease-in-out';
+        lastShowTime = currentTime;
+    } else if (currentScroll > lastScrollTop && !isSticky) {
+        // Nach unten scrollen (nur wenn nicht sticky und nicht ganz oben)
         if (scrollDirection !== 'down') {
             scrollDirection = 'down';
             navbar.style.transform = 'translateY(-100%)';
@@ -38,7 +44,7 @@ window.addEventListener('scroll', () => {
                 scrollDirection = 'up';
                 navbar.style.transform = 'translateY(0)';
                 navbar.style.transition = 'transform 0.3s ease-in-out';
-                lastShowTime = currentTime; // Aktualisiere die Zeit, wann die Navbar zuletzt gezeigt wurde
+                lastShowTime = currentTime;
             }
         }
     }
