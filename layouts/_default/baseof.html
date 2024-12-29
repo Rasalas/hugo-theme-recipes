@@ -4,15 +4,16 @@
   {{ partial "head.html" . }}
 </head>
 <body class="flex flex-col justify-between min-h-screen">
-  <header class="print:hidden">
+  <header class="print:hidden fixed top-0 left-0 right-0 z-50 bg-gray-200 dark:bg-neutral shadow-lg">
     {{ partial "header.html" . }}
   </header>
-  <main>
+  <main class="mt-16">
     {{ block "main" . }}{{ end }}
   </main>
   <footer class="footer footer-center p-4 bg-base-200 text-base-content mt-auto print:hidden">
     {{ partial "footer.html" . }}
   </footer>
   <script src="/js/tag-navigation.js"></script>
+  <script src="/js/navbar.js"></script>
 </body>
 </html>
