@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         element.setAttribute('href', result.item.permalink);
         element.querySelector('[data-title]').innerHTML = highlightText(result.item.title, searchTerm);
         
+        // Add aka display if available
+        if (result.item.aka && result.item.aka.length > 0) {
+            const titleElement = element.querySelector('[data-title]');
+            const akaText = `<small class="text-muted ms-2">(auch: ${result.item.aka.map(a => highlightText(a, searchTerm)).join(', ')})</small>`;
+            titleElement.insertAdjacentHTML('beforeend', akaText);
+        }
+        
         const imageContainer = element.querySelector('.js-image-container');
         if (result.item.images && result.item.images.thumb) {
             const imgContainer = document.createElement('div');
@@ -92,7 +99,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             keys: [
                 { name: 'title', weight: 2 },
                 { name: 'description', weight: 1.5 },
-                { name: 'tags', weight: 1 }
+                { name: 'tags', weight: 1 },
+                { name: 'aka', weight: 1.8 }
             ],
             includeScore: true,
             threshold: 0.3,
