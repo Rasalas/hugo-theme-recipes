@@ -6,9 +6,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imageTemplate = document.querySelector('.js-image-template').innerHTML;
     const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
     const toTopButton = document.getElementById('toTopButton');
+    const clearButton = document.getElementById('search-clear');
     
     console.log('ToTopButton found:', toTopButton);
-    
+
+    let fuse; // Declare fuse at the top level of our scope
+
+    // Clear button functionality
+    searchInput.addEventListener('input', function() {
+        if (this.value) {
+            clearButton.classList.remove('hidden');
+        } else {
+            clearButton.classList.add('hidden');
+        }
+    });
+
+    function showAllRecipes() {
+        searchResults.classList.add('hidden');
+        allRecipes.classList.remove('hidden');
+        searchInput.value = '';
+        clearButton.classList.add('hidden');
+    }
+
+    // Function to update URL with search term
+    function updateURL(searchTerm) {
+        const url = new URL(window.location);
+        if (searchTerm) {
+            url.searchParams.set('q', searchTerm);
+            window.history.pushState({ searchTerm }, '', url);
+        } else {
+            url.searchParams.delete('q');
+            window.history.pushState({ searchTerm: null }, '', url);
+        }
+    }
+
+    function highlightText(text, searchTerm) {
+        if (!searchTerm) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
+    }
+
     function createSearchResult(result, searchTerm) {
         const container = document.createElement('div');
         container.innerHTML = resultTemplate;
@@ -62,13 +99,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             element.querySelector('[data-description]').innerHTML = highlightText(preview, searchTerm);
         }
 
-        // Add aka display if available
         if (result.item.aka && result.item.aka.length > 0) {
             const descriptionElement = element.querySelector('[data-description]');
             const akaText = `<div class="text-neutral-600 dark:text-neutral-400 mt-1 text-sm mb-3">aka: ${result.item.aka.map(a => highlightText(a, searchTerm)).join(', ')}</div>`;
             descriptionElement.insertAdjacentHTML('beforeend', akaText);
         } else {
-            // If no aka, add margin to description
             element.querySelector('[data-description]').classList.add('mb-3');
         }
         
@@ -84,16 +119,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         return element.outerHTML;
     }
 
-    function showAllRecipes() {
-        searchResults.classList.add('hidden');
-        allRecipes.classList.remove('hidden');
-        searchInput.value = '';
-    }
+    // Function to perform search
+    async function performSearch(searchTerm, updateHistory = true) {
+        if (!fuse) return; // Guard clause if fuse isn't initialized yet
 
-    function highlightText(text, searchTerm) {
-        if (!searchTerm) return text;
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
+        if (updateHistory) {
+            updateURL(searchTerm);
+        }
+
+        if (!searchTerm) {
+            showAllRecipes();
+            return;
+        }
+
+        if (searchTerm.length < 2) {
+            return;
+        }
+
+        const results = fuse.search(searchTerm);
+        const filteredResults = results.filter(result => result.score < 0.4);
+        
+        const uniqueResults = filteredResults.reduce((acc, current) => {
+            const x = acc.find(item => item.item.permalink === current.item.permalink);
+            if (!x) {
+                return acc.concat([current]);
+            } else {
+                return acc;
+            }
+        }, []);
+
+        searchResults.classList.remove('hidden');
+        allRecipes.classList.add('hidden');
+        
+        if (uniqueResults.length) {
+            searchResults.innerHTML = uniqueResults.map(result => createSearchResult(result, searchTerm)).join('');
+        } else {
+            searchResults.innerHTML = `
+                <div class="col-span-full text-center">
+                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
+                    <button onclick="window.showAllRecipes()" 
+                            class="btn btn-outline btn-neutral">
+                        Alle Rezepte anzeigen
+                    </button>
+                </div>
+            `;
+        }
     }
 
     try {
@@ -101,7 +171,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         
-        const fuse = new Fuse(data, {
+        // Initialize Fuse
+        fuse = new Fuse(data, {
             keys: [
                 { name: 'title', weight: 2 },
                 { name: 'description', weight: 1.5 },
@@ -115,54 +186,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             useExtendedSearch: true,
             minMatchCharLength: 2
         });
+
+        // Check for search term in URL on page load
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchTerm = urlParams.get('q');
+        if (initialSearchTerm) {
+            searchInput.value = initialSearchTerm;
+            clearButton.classList.remove('hidden');
+            await performSearch(initialSearchTerm, false);
+        }
         
         let debounceTimer;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const searchTerm = e.target.value.trim();
-                if (searchTerm.length === 0) {
-                    showAllRecipes();
-                    return;
-                }
-                
-                if (searchTerm.length < 2) {
-                    return;
-                }
-                
-                const results = fuse.search(searchTerm);
-                const filteredResults = results.filter(result => result.score < 0.4);
-                
-                const uniqueResults = filteredResults.reduce((acc, current) => {
-                    const x = acc.find(item => item.item.permalink === current.item.permalink);
-                    if (!x) {
-                        return acc.concat([current]);
-                    } else {
-                        return acc;
-                    }
-                }, []);
-
-                searchResults.classList.remove('hidden');
-                allRecipes.classList.add('hidden');
-                
-                if (uniqueResults.length) {
-                    searchResults.innerHTML = uniqueResults.map(result => createSearchResult(result, searchTerm)).join('');
-                } else {
-                    searchResults.innerHTML = `
-                        <div class="col-span-full text-center">
-                            <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
-                            <button onclick="window.showAllRecipes()" 
-                                    class="btn btn-outline btn-neutral">
-                                Alle Rezepte anzeigen
-                            </button>
-                        </div>
-                    `;
-                }
+                performSearch(searchTerm);
             }, 300);
         });
 
-        // Expose showAllRecipes to window for the button click
-        window.showAllRecipes = showAllRecipes;
+        // Handle browser back/forward
+        window.addEventListener('popstate', (event) => {
+            const searchTerm = event.state?.searchTerm || '';
+            searchInput.value = searchTerm;
+            if (searchTerm) {
+                clearButton.classList.remove('hidden');
+            } else {
+                clearButton.classList.add('hidden');
+            }
+            performSearch(searchTerm, false);
+        });
+
+        // Update showAllRecipes to handle URL
+        window.showAllRecipes = function() {
+            searchResults.classList.add('hidden');
+            allRecipes.classList.remove('hidden');
+            searchInput.value = '';
+            clearButton.classList.add('hidden');
+            updateURL('');
+        }
         
     } catch (error) {
         console.error('Error loading search index:', error);
