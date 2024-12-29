@@ -2,12 +2,8 @@
 <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
     <article class="prose prose-neutral lg:prose-lg dark:prose-invert max-w-none">
         {{ if .Params.image }}
-        <div class="aspect-video w-full overflow-hidden rounded-lg -mt-4 mb-8 not-prose print:hidden">
-            <a href="{{ .Params.image }}" target="_blank" class="block w-full h-full">
-                <img src="{{ .Params.image }}" 
-                     alt="{{ .Title }}" 
-                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-            </a>
+        <div class="not-prose print:hidden">
+            {{ partial "optimized-image.html" (dict "image" .Params.image "alt" .Title "class" "featured-image" "isDetail" true) }}
         </div>
         {{ end }}
 
@@ -19,17 +15,13 @@
             {{ .Content }}
         </div>
         
-        {{ if .Params.images }}
+        {{ if .Params.gallery }}
         <div class="mt-12 not-prose print:hidden">
             <h2 class="text-2xl font-bold mb-4 text-neutral-900 dark:text-white">Galerie</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{ range .Params.images }}
+                {{ range .Params.gallery }}
                 <div class="aspect-video w-full overflow-hidden rounded-lg">
-                    <a href="{{ . }}" target="_blank" class="block w-full h-full">
-                        <img src="{{ . }}" 
-                             alt="{{ $.Title }}" 
-                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                    </a>
+                    {{ partial "optimized-image.html" (dict "image" . "alt" $.Title "class" "gallery-image" "isDetail" true) }}
                 </div>
                 {{ end }}
             </div>
@@ -64,6 +56,17 @@
                             </svg>
                             Bearbeiten
                         </a>
+                        {{ if .Site.Params.isDevelopment }}
+                        <a href="http://localhost:3000/recipe/edit/{{ with .File }}{{ .BaseFileName }}{{ end }}" 
+                           target="_blank"
+                           class="inline-flex items-center px-3 py-1 text-sm font-medium text-neutral-700 bg-neutral-100 rounded-md hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 print:hidden">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Lokal bearbeiten
+                        </a>
+                        {{ end }}
                     </div>
                 </div>
             </div>
@@ -168,4 +171,4 @@
 </style>
 
 {{ partial "search-highlight.html" . }}
-{{ end }}
+{{ end }} 

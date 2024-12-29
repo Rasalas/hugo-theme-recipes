@@ -1,11 +1,25 @@
-{{- $.Scratch.Add "index" slice -}}
-{{- range .Site.RegularPages -}}
-    {{- $.Scratch.Add "index" (dict 
-        "title" .Title 
-        "content" .Plain 
-        "permalink" .Permalink 
-        "summary" .Summary
-        "tags" .Params.tags
-    ) -}}
-{{- end -}}
-{{- $.Scratch.Get "index" | jsonify -}} 
+[
+    {{- range $index, $page := where .Site.RegularPages "Section" "recipe" -}}
+        {{- if $index }},{{ end }}
+        {
+            "title": {{ $page.Title | jsonify }},
+            "content": {{ $page.Plain | jsonify }},
+            "permalink": {{ $page.Permalink | jsonify }},
+            "summary": {{ $page.Summary | jsonify }},
+            "tags": {{ $page.Params.tags | jsonify }},
+            "description": {{ $page.Params.description | jsonify }},
+            "aka": {{ $page.Params.aka | jsonify }},
+            "images": {
+                {{ if $page.Params.image }}
+                {{ $thumbPath := replace $page.Params.image "images/recipes/" "_gen/images/recipes/thumbnails/" }}
+                {{ $originalPath := $page.Params.image }}
+                "thumb": {{ $thumbPath | jsonify }},
+                "full": {{ $originalPath | jsonify }}
+                {{ else }}
+                "thumb": null,
+                "full": null
+                {{ end }}
+            }
+        }
+    {{- end -}}
+    ] 
