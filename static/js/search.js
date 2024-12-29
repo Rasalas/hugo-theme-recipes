@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
     const imageTemplate = document.querySelector('.js-image-template').innerHTML;
     const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
+    const toTopButton = document.getElementById('toTopButton');
+    
+    console.log('ToTopButton found:', toTopButton);
     
     function createSearchResult(result, searchTerm) {
         const container = document.createElement('div');
@@ -165,4 +168,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error loading search index:', error);
         searchResults.innerHTML = '<p class="text-red-500 dark:text-red-400 text-center">Fehler beim Laden der Suche.</p>';
     }
+
+    // Nach oben Button Funktionalität
+    window.addEventListener('scroll', () => {
+        console.log('Scroll event triggered, window.scrollY:', window.scrollY);
+        if (window.scrollY > 200) {
+            console.log('Should show button');
+            toTopButton.classList.remove('opacity-0', 'invisible');
+            toTopButton.classList.add('opacity-100');
+        } else {
+            console.log('Should hide button');
+            toTopButton.classList.add('opacity-0', 'invisible');
+            toTopButton.classList.remove('opacity-100');
+        }
+    });
+
+    function scrollToTop() {
+        console.log('ScrollToTop clicked');
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Expose scrollToTop to window for the button click
+    window.scrollToTop = scrollToTop;
 }); 

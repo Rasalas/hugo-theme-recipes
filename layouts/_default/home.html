@@ -16,6 +16,11 @@
     </div>
 </div>
 
+<!-- Nach oben Button -->
+<button id="toTopButton" onclick="scrollToTop()" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;" class="bg-gray-700 w-12 h-12 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 invisible flex items-center justify-center text-2xl hover:bg-gray-600">
+    ↑
+</button>
+
 {{ partial "search-result-template.html" . }}
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
