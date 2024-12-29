@@ -14,13 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         element.setAttribute('href', result.item.permalink);
         element.querySelector('[data-title]').innerHTML = highlightText(result.item.title, searchTerm);
         
-        // Add aka display if available
-        if (result.item.aka && result.item.aka.length > 0) {
-            const titleElement = element.querySelector('[data-title]');
-            const akaText = `<small class="text-muted ms-2">(auch: ${result.item.aka.map(a => highlightText(a, searchTerm)).join(', ')})</small>`;
-            titleElement.insertAdjacentHTML('beforeend', akaText);
-        }
-        
         const imageContainer = element.querySelector('.js-image-container');
         if (result.item.images && result.item.images.thumb) {
             const imgContainer = document.createElement('div');
@@ -65,12 +58,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const preview = result.item.content.substring(0, 200) + '...';
             element.querySelector('[data-description]').innerHTML = highlightText(preview, searchTerm);
         }
+
+        // Add aka display if available
+        if (result.item.aka && result.item.aka.length > 0) {
+            const descriptionElement = element.querySelector('[data-description]');
+            const akaText = `<div class="text-neutral-600 dark:text-neutral-400 mt-1 text-sm mb-3">aka: ${result.item.aka.map(a => highlightText(a, searchTerm)).join(', ')}</div>`;
+            descriptionElement.insertAdjacentHTML('beforeend', akaText);
+        } else {
+            // If no aka, add margin to description
+            element.querySelector('[data-description]').classList.add('mb-3');
+        }
         
         if (result.item.tags && result.item.tags.length > 0) {
             const tagsContainer = element.querySelector('.js-tags-container');
-            tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2');
+            tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-auto');
             const tagsHtml = result.item.tags.map(tag => {
-                return `<span class="badge badge-outline m-1 no-underline">${tag}</span>`;
+                return `<span class="badge badge-outline my-1 no-underline">${tag}</span>`;
             }).join('');
             tagsContainer.innerHTML = tagsHtml;
         }
