@@ -28,6 +28,7 @@
         </div>
         {{ end }}
         
+        {{ if eq .Type "recipe" }}
         <footer class="mt-12 pt-4 border-t border-neutral-200 dark:border-neutral-700 print:hidden">
             <div class="flex flex-col gap-4">
                 {{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
@@ -48,7 +49,8 @@
                             </svg>
                             Anzeigen
                         </a>
-                        <a href="https://github.com/rasalas/web-recipes/edit/main/content/{{ .File.Path }}" 
+                        {{ if .Site.Params.isDevelopment }}
+                        <a href="http://localhost:3000/recipe/form.php?edit={{ with .File }}{{ .BaseFileName }}{{ end }}" 
                            target="_blank"
                            class="inline-flex items-center px-3 py-1 text-sm font-medium text-neutral-700 bg-neutral-100 rounded-md hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 print:hidden">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -56,6 +58,16 @@
                             </svg>
                             Bearbeiten
                         </a>
+                        {{ else }}
+                        <a href="/backend/recipe/form.php?edit={{ with .File }}{{ .BaseFileName }}{{ end }}" 
+                           target="_blank"
+                           class="inline-flex items-center px-3 py-1 text-sm font-medium text-neutral-700 bg-neutral-100 rounded-md hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 print:hidden">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Bearbeiten
+                        </a>
+                        {{ end }}
                         {{ if .Site.Params.isDevelopment }}
                         <a href="http://localhost:3000/recipe/edit/{{ with .File }}{{ .BaseFileName }}{{ end }}" 
                            target="_blank"
@@ -71,6 +83,7 @@
                 </div>
             </div>
         </footer>
+        {{ end }}
     </article>
 </div>
 

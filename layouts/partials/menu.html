@@ -9,6 +9,7 @@ Renders a menu for the given menu ID.
 
 {{- $page := .page }}
 {{- $menuID := .menuID }}
+{{- $isDevelopment := .page.Site.Params.isDevelopment }}
 
 <nav class="bg-base-100 shadow-lg">
   <div class="container mx-auto px-4">
@@ -49,6 +50,22 @@ Renders a menu for the given menu ID.
           </a>
           {{ end }}
         </div>
+        {{ end }}
+        
+        {{ if $isDevelopment }}
+        <a href="http://localhost:3000/recipe/form.php" class="text-base-content hover:text-primary font-medium flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Neu
+        </a>
+        {{ else }}
+        <a href="/backend/recipe/form.php" class="text-base-content hover:text-primary font-medium flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Neu
+        </a>
         {{ end }}
         
         <a href="/tags" class="text-base-content hover:text-primary font-medium flex items-center">
