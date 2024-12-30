@@ -24,17 +24,17 @@
         {{ if eq $class "recipe-card-image" }}
             <img src="/{{ $thumbPath }}" 
                 alt="{{ $alt }}" 
-                class="w-full h-full object-cover shadow-sm hover:shadow-md transition-shadow"
+                class="w-full h-full object-cover {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
                 {{ if not $isDetail }}loading="lazy"{{ end }}>
         {{ else if eq $class "featured-image" }}
             <img src="/{{ $detailPath }}" 
                 alt="{{ $alt }}" 
-                class="w-full h-full object-cover shadow-sm hover:shadow-md transition-shadow"
+                class="w-full h-full object-cover {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
                 {{ if not $isDetail }}loading="lazy"{{ end }}>
         {{ else if eq $class "gallery-image" }}
             <img src="/{{ $galleryPath }}" 
                 alt="{{ $alt }}" 
-                class="w-full h-full object-cover shadow-sm hover:shadow-md transition-shadow"
+                class="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
                 {{ if not $isDetail }}loading="lazy"{{ end }}>
         {{ end }}
     </picture>
