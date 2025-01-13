@@ -3,3 +3,21 @@
 @tailwind utilities;
 
 /* Custom styles below */
+/* Wake Lock Button Styles */
+#wakeLockButton.active {
+    @apply bg-yellow-50 dark:bg-yellow-900/30;
+}
+
+#wakeLockButton.active #wakeLockIcon {
+    @apply text-yellow-500 dark:text-yellow-400;
+}
+
+/* Add a subtle scale effect on hover */
+#wakeLockButton:hover {
+    transform: scale(1.05);
+}
+
+/* Add a press effect */
+#wakeLockButton:active {
+    transform: scale(0.95);
+}
