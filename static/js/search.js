@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toTopButton = document.getElementById('toTopButton');
     const clearButton = document.getElementById('search-clear');
     
-    console.log('ToTopButton found:', toTopButton);
-
     let fuse; // Declare fuse at the top level of our scope
 
     // Clear button functionality
@@ -239,20 +237,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Nach oben Button Funktionalität
     window.addEventListener('scroll', () => {
-        console.log('Scroll event triggered, window.scrollY:', window.scrollY);
         if (window.scrollY > 200) {
-            console.log('Should show button');
             toTopButton.classList.remove('opacity-0', 'invisible');
             toTopButton.classList.add('opacity-100');
         } else {
-            console.log('Should hide button');
             toTopButton.classList.add('opacity-0', 'invisible');
             toTopButton.classList.remove('opacity-100');
         }
     });
 
     function scrollToTop() {
-        console.log('ScrollToTop clicked');
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
