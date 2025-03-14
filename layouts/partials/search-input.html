@@ -17,20 +17,25 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
-    const clearButton = document.getElementById('search-clear');
     const searchIcon = document.getElementById('search-icon');
+    const clearButton = document.getElementById('search-clear');
     const isHomePage = window.location.pathname === '/' || window.location.pathname === '/index.html';
 
+    function updateIconVisibility() {
+        if (searchInput.value.trim()) {
+            searchIcon.classList.add('hidden');
+            clearButton.classList.remove('hidden');
+        } else {
+            searchIcon.classList.remove('hidden');
+            clearButton.classList.add('hidden');
+        }
+    }
+
     if (clearButton && searchIcon) {
-        searchInput.addEventListener('input', function() {
-            if (this.value) {
-                clearButton.classList.remove('hidden');
-                searchIcon.classList.add('hidden');
-            } else {
-                clearButton.classList.add('hidden');
-                searchIcon.classList.remove('hidden');
-            }
-        });
+        // Initial state
+        updateIconVisibility();
+
+        searchInput.addEventListener('input', updateIconVisibility);
 
         clearButton.addEventListener('click', () => {
             searchInput.value = '';
