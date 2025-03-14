@@ -12,18 +12,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Clear button functionality
     searchInput.addEventListener('input', function() {
-        if (this.value) {
-            clearButton.classList.remove('hidden');
-        } else {
-            clearButton.classList.add('hidden');
-        }
+        // Visibility is now handled in search-input.html
     });
 
     function showAllRecipes() {
         searchResults.classList.add('hidden');
         allRecipes.classList.remove('hidden');
         searchInput.value = '';
-        clearButton.classList.add('hidden');
+        // Clear button visibility is now handled in search-input.html
     }
 
     // Function to update URL with search term
