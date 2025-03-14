@@ -2,14 +2,23 @@
 <div class="min-h-screen bg-base-200">
     <div class="pt-16 md:pt-8 pb-4 px-4">
         <div class="max-w-7xl mx-auto">
-            <!-- Suchergebnisse -->
-            <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
-                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
-            </div>
+            <div class="container mx-auto px-4">
+                <div id="no-results" class="hidden text-center mb-8">
+                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
+                    <button onclick="window.showAllRecipes()" 
+                            class="btn btn-outline btn-neutral">
+                        Alle Rezepte anzeigen
+                    </button>
+                </div>
+                <!-- Suchergebnisse -->
+                <div id="search-results" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left min-h-[50vh]">
+                    <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+                </div>
 
-            <!-- Alle Rezepte (werden ausgeblendet bei Suche) -->
-            <div id="all-recipes">
-                {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
+                <!-- Alle Rezepte (werden ausgeblendet bei Suche) -->
+                <div id="all-recipes">
+                    {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
+                </div>
             </div>
         </div>
     </div>

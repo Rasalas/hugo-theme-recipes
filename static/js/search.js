@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
     const allRecipes = document.getElementById('all-recipes');
+    const noResults = document.getElementById('no-results');
     const resultTemplate = document.querySelector('.js-search-result-template').innerHTML;
     const imageTemplate = document.querySelector('.js-image-template').innerHTML;
     const noImageTemplate = document.querySelector('.js-no-image-template').innerHTML;
@@ -10,14 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     let fuse; // Declare fuse at the top level of our scope
 
-    // Clear button functionality
-    searchInput.addEventListener('input', function() {
-        // Visibility is now handled in search-input.html
-    });
-
     function showAllRecipes() {
         searchResults.classList.add('hidden');
         allRecipes.classList.remove('hidden');
+        noResults.classList.add('hidden');
         searchInput.value = '';
         // Clear button visibility is now handled in search-input.html
     }
@@ -153,16 +150,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (uniqueResults.length) {
             searchResults.innerHTML = uniqueResults.map(result => createSearchResult(result, searchTerm)).join('');
+            noResults.classList.add('hidden');
         } else {
-            searchResults.innerHTML = `
-                <div class="col-span-full text-center">
-                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
-                    <button onclick="window.showAllRecipes()" 
-                            class="btn btn-outline btn-neutral">
-                        Alle Rezepte anzeigen
-                    </button>
-                </div>
-            `;
+            searchResults.innerHTML = '';
+            noResults.classList.remove('hidden');
         }
     }
 
@@ -224,6 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.showAllRecipes = function() {
             searchResults.classList.add('hidden');
             allRecipes.classList.remove('hidden');
+            noResults.classList.add('hidden');
             searchInput.value = '';
             clearButton.classList.add('hidden');
             updateURL('');

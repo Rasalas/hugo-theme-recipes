@@ -8,8 +8,17 @@
             </div>
 
             <!-- Suchergebnisse -->
-            <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left hidden">
-                <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+            <div class="container mx-auto px-4">
+                <div id="no-results" class="hidden text-center mb-8">
+                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
+                    <button onclick="window.showAllRecipes()" 
+                            class="btn btn-outline btn-neutral">
+                        Alle Rezepte anzeigen
+                    </button>
+                </div>
+                <div id="search-results" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Suchergebnisse werden hier dynamisch eingefügt -->
+                </div>
             </div>
         </div>
     </div>
