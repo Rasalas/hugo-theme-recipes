@@ -171,7 +171,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch('/index.json');
+        // Use recipe hash if available, otherwise fallback to timestamp
+        const hash = window.RECIPE_HASH || new Date().getTime();
+        console.log('calling index.json with hash', hash, 'window.RECIPE_HASH', window.RECIPE_HASH);
+        const response = await fetch(`/index.json?h=${hash}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         
