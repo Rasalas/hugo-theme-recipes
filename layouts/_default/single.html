@@ -1,4 +1,5 @@
 {{ define "main" }}
+{{ $isStructured := eq .Params.schemaversion 1 }}
 <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20">
     <article class="prose prose-neutral lg:prose-lg dark:prose-invert max-w-none">
         {{ if .Params.image }}
@@ -11,9 +12,13 @@
             <h1 class="!mt-0 !mb-0">{{ .Title }}</h1>
         </div>
 
-        <div class="recipe-content">
-            {{ .Content }}
-        </div>
+        {{ if $isStructured }}
+            {{ partial "structured-recipe.html" . }}
+        {{ else }}
+            <div class="recipe-content">
+                {{ .Content }}
+            </div>
+        {{ end }}
         
         {{ if .Params.gallery }}
         <div class="mt-12 not-prose print:hidden">
@@ -78,7 +83,8 @@
     </article>
 </div>
 
-<!-- Floating Action Button for Wake Lock -->
+{{ if not $isStructured }}
+<!-- Floating Action Button for Wake Lock (Legacy-Rezepte) -->
 <button id="wakeLockButton"
         onclick="toggleWakeLock()"
         aria-pressed="false"
@@ -87,6 +93,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
     </svg>
 </button>
+{{ end }}
 
 <style>
 /* Content Styles */
@@ -188,4 +195,5 @@
 
 {{ partial "search-highlight.html" . }}
 <script src="/js/wakelock.js"></script>
-{{ end }} 
+{{ if $isStructured }}<script src="/js/cook-mode.js"></script>{{ end }}
+{{ end }}

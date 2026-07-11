@@ -1,0 +1,205 @@
+{{- $page := . -}}
+{{- $servings := .Params.servings -}}
+{{- $servingUnit := .Params.servingunit | default "Portionen" -}}
+{{- $servingOriginal := .Params.servingstext | default "" -}}
+{{- if and (eq $servingOriginal "") $servings -}}
+    {{- $servingOriginal = printf "%v" $servings -}}
+    {{- with .Params.servingsmax }}{{ $servingOriginal = printf "%s–%v" $servingOriginal . }}{{ end -}}
+    {{- $servingOriginal = printf "%s %s" $servingOriginal $servingUnit -}}
+{{- end -}}
+{{- $hasServingInfo := ne $servingOriginal "" -}}
+<div id="structuredRecipe"
+     class="structured-recipe not-prose"
+     data-recipe-key="{{ with .File }}{{ .BaseFileName }}{{ else }}{{ .Title | urlize }}{{ end }}"
+     {{ with $servings }}data-base-servings="{{ . }}"{{ end }}
+     {{ with $servingOriginal }}data-serving-original="{{ . }}"{{ end }}>
+    {{ with .Params.description }}
+    <p class="recipe-lede">{{ . }}</p>
+    {{ end }}
+
+    <section class="recipe-dashboard{{ if not $hasServingInfo }} recipe-dashboard--without-servings{{ end }}" aria-label="Rezeptübersicht">
+        {{ if $hasServingInfo }}
+        <div class="portion-panel">
+            <span class="dashboard-kicker">Menge</span>
+            {{ with $servings }}
+            <div class="portion-control print:hidden" aria-label="Portionen anpassen">
+                <button type="button" data-portion-decrease aria-label="Eine Portion weniger">−</button>
+                <output data-portion-current aria-live="polite">{{ . }}</output>
+                <button type="button" data-portion-increase aria-label="Eine Portion mehr">+</button>
+            </div>
+            <span class="portion-unit">{{ $servingUnit }}</span>
+            <small data-portion-context>Original: {{ $servingOriginal }} · Faktor 1×</small>
+            {{ else }}
+            <strong class="portion-static">{{ $servingOriginal }}</strong>
+            {{ end }}
+            <strong class="portion-print-only">{{ $servingOriginal }}</strong>
+        </div>
+        {{ end }}
+        <div class="time-strip">
+            {{ with .Params.preptimeminutes }}
+            <div><span>Vorbereitung</span><strong>{{ . }}{{ with $page.Params.preptimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            {{ end }}
+            {{ with .Params.resttimeminutes }}
+            <div><span>Ruhe</span><strong>{{ . }}{{ with $page.Params.resttimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            {{ end }}
+            {{ with .Params.cooktimeminutes }}
+            <div><span>Garzeit</span><strong>{{ . }}{{ with $page.Params.cooktimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            {{ end }}
+        </div>
+        <div class="recipe-actions print:hidden">
+            <button type="button" class="cook-mode-launch" data-cook-mode-open>
+                <span aria-hidden="true">▶</span> Kochmodus starten
+            </button>
+            <button type="button" class="recipe-reset" data-recipe-reset>Zurücksetzen</button>
+        </div>
+    </section>
+
+    <div class="recipe-structure">
+        <section class="ingredients-column" aria-labelledby="ingredients-title">
+            <header class="section-title-row">
+                <span class="section-number" aria-hidden="true">01</span>
+                <div>
+                    <span class="section-kicker">Mise en place</span>
+                    <h2 id="ingredients-title">Zutaten</h2>
+                </div>
+            </header>
+
+            {{ range $groupIndex, $group := .Params.ingredientgroups }}
+            <section class="ingredient-group">
+                {{ with $group.name }}<h3>{{ . }}</h3>{{ end }}
+                <ul class="ingredient-list">
+                    {{ range $ingredientIndex, $ingredient := $group.ingredients }}
+                    {{ $ingredientID := printf "ingredient-%d-%d" $groupIndex $ingredientIndex }}
+                    <li class="ingredient-item" data-ingredient-row>
+                        <input type="checkbox"
+                               id="{{ $ingredientID }}"
+                               data-ingredient-check="{{ $ingredientID }}"
+                               aria-label="{{ $ingredient.name }} abhaken">
+                        <label for="{{ $ingredientID }}">
+                            {{ with $ingredient.options }}
+                            <span class="ingredient-choice-name">{{ $ingredient.name }}</span>
+                            <span class="ingredient-options">
+                                {{ range . }}
+                                <span class="ingredient-option">
+                                    <span class="ingredient-option-main">
+                                        {{ partial "structured-amount.html" (dict "ingredient" .) }}
+                                        <strong>{{ .name }}</strong>
+                                        {{ if .preferred }}<em>bevorzugt</em>{{ end }}
+                                    </span>
+                                    {{ with .note }}<small>{{ . }}</small>{{ end }}
+                                </span>
+                                {{ end }}
+                            </span>
+                            {{ with $ingredient.note }}<small>{{ . }}</small>{{ end }}
+                            {{ else }}
+                            <span class="ingredient-main">
+                                {{ partial "structured-amount.html" (dict "ingredient" $ingredient) }}
+                                <strong>{{ $ingredient.name }}</strong>
+                                {{ if $ingredient.optional }}<em>optional</em>{{ end }}
+                            </span>
+                            {{ with $ingredient.note }}<small>{{ . }}</small>{{ end }}
+                            {{ end }}
+                        </label>
+                    </li>
+                    {{ end }}
+                </ul>
+            </section>
+            {{ end }}
+        </section>
+
+        <section class="steps-column" aria-labelledby="steps-title">
+            <header class="section-title-row">
+                <span class="section-number" aria-hidden="true">02</span>
+                <div>
+                    <span class="section-kicker">Am Herd</span>
+                    <h2 id="steps-title">Zubereitung</h2>
+                </div>
+            </header>
+
+            <ol class="recipe-steps">
+                {{ range $stepIndex, $step := .Params.steps }}
+                <li class="recipe-step" data-cook-step>
+                    <div class="step-index" aria-hidden="true">{{ printf "%02d" (add $stepIndex 1) }}</div>
+                    <article>
+                        {{ with $step.group }}<span class="step-group">{{ . }}</span>{{ end }}
+                        <p>{{ $step.text }}</p>
+
+                        {{ with $step.timers }}
+                        <div class="step-timers print:hidden">
+                            {{ range $timerIndex, $timer := . }}
+                            {{ $timerID := printf "timer-%d-%d" $stepIndex $timerIndex }}
+                            {{ if isset $timer "durationMinutes" }}
+                            {{ $timerLabel := $timer.label | default "Timer" }}
+                            {{ $timerDuration := printf "%v" $timer.durationMinutes }}
+                            {{ with $timer.durationMaxMinutes }}{{ $timerDuration = printf "%s–%v" $timerDuration . }}{{ end }}
+                            <button type="button"
+                                    data-timer-button="{{ $timerID }}"
+                                    data-duration-seconds="{{ mul $timer.durationMinutes 60 }}"
+                                    data-timer-label="{{ $timerLabel }}">
+                                <span aria-hidden="true">◷</span>
+                                {{ $timerLabel }}:
+                                {{ with $timer.durationText }}{{ . }}{{ else }}{{ $timerDuration }} Min.{{ end }}
+                            </button>
+                            {{ else }}
+                            <span class="timer-note">{{ $timer.durationText }}</span>
+                            {{ end }}
+                            {{ end }}
+                        </div>
+                        {{ end }}
+
+                        {{ if or $step.temperatures $step.equipmentSettings }}
+                        <div class="step-settings">
+                            {{ range $step.temperatures }}
+                            <span>{{ .value }}{{ with .valueMax }}–{{ . }}{{ end }} {{ .unit }}{{ with .mode }} · {{ . }}{{ end }}{{ with .note }}<small>{{ . }}</small>{{ end }}</span>
+                            {{ end }}
+                            {{ range $step.equipmentSettings }}
+                            <span>{{ .value }}{{ with .valueMax }}–{{ . }}{{ end }}{{ with .unit }} {{ . }}{{ end }}{{ with .mode }} · {{ . }}{{ end }}{{ with .note }}<small>{{ . }}</small>{{ end }}</span>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+
+                        {{ with $step.image }}
+                        <div class="step-image print:hidden">
+                            {{ partial "optimized-image.html" (dict "image" . "alt" (printf "%s – Schritt %d" $page.Title (add $stepIndex 1)) "class" "gallery-image" "isDetail" true) }}
+                        </div>
+                        {{ end }}
+                    </article>
+                </li>
+                {{ end }}
+            </ol>
+        </section>
+    </div>
+
+    {{ with .Content }}
+    <section class="recipe-notes">
+        <span class="section-kicker">Aus dem Kochbuch</span>
+        <h2>Hinweise und Varianten</h2>
+        <div class="prose prose-neutral dark:prose-invert max-w-none">{{ . }}</div>
+    </section>
+    {{ end }}
+
+    <p class="timer-announcement sr-only" data-timer-announcement aria-live="assertive"></p>
+
+    <dialog class="cook-mode-dialog print:hidden" data-cook-mode-dialog aria-labelledby="cook-mode-title">
+        <div class="cook-mode-shell">
+            <header>
+                <div>
+                    <span class="section-kicker">Fokusansicht</span>
+                    <h2 id="cook-mode-title">Kochmodus</h2>
+                </div>
+                <button type="button" class="cook-mode-close" data-cook-mode-close aria-label="Kochmodus schließen">×</button>
+            </header>
+            <div class="cook-mode-progress">
+                <span data-cook-progress>Schritt 1</span>
+                <div aria-hidden="true"><i data-cook-progress-bar></i></div>
+            </div>
+            <div class="cook-mode-content" data-cook-mode-content></div>
+            <footer>
+                <button type="button" data-cook-previous>← Zurück</button>
+                <button type="button" data-wake-lock-toggle>Bildschirm anlassen</button>
+                <button type="button" data-cook-next>Weiter →</button>
+            </footer>
+            <p class="wake-lock-status" data-wake-lock-status aria-live="polite">Bildschirm-Wachmodus ist aus.</p>
+        </div>
+    </dialog>
+</div>

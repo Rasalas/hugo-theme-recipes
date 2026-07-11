@@ -1,0 +1,22 @@
+{{- $ingredient := .ingredient -}}
+{{- $hasAmount := isset $ingredient "amount" -}}
+{{- $hasMaximum := isset $ingredient "amountMax" -}}
+{{- $amount := index $ingredient "amount" -}}
+{{- $maximum := index $ingredient "amountMax" -}}
+{{- $amountText := index $ingredient "amountText" | default "" -}}
+{{- $display := "" -}}
+{{- if ne $amountText "" -}}
+    {{- $display = $amountText -}}
+{{- else if $hasAmount -}}
+    {{- $display = printf "%v" $amount -}}
+    {{- if $hasMaximum -}}
+        {{- $display = printf "%v–%v" $amount $maximum -}}
+    {{- end -}}
+{{- end -}}
+{{- if ne $display "" -}}
+<span class="recipe-amount"
+      data-original-text="{{ $display }}"
+      {{- if $hasAmount }} data-amount="{{ $amount }}"{{ end -}}
+      {{- if $hasMaximum }} data-amount-max="{{ $maximum }}"{{ end -}}>{{ $display }}</span>
+{{- end -}}
+{{- with index $ingredient "unit" }} <span class="recipe-unit">{{ . }}</span>{{ end -}}
