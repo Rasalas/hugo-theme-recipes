@@ -31,10 +31,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function highlightText(text, searchTerm) {
-        if (!searchTerm) return text;
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        return text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
+    function appendHighlightedText(target, text, searchTerm) {
+        target.replaceChildren();
+        window.recipeSearchUtils.highlightSegments(text, searchTerm).forEach((segment) => {
+            if (!segment.highlighted) {
+                target.append(document.createTextNode(segment.text));
+                return;
+            }
+            const mark = document.createElement('mark');
+            mark.className = 'bg-amber-200 dark:bg-amber-700 dark:text-white';
+            mark.textContent = segment.text;
+            target.append(mark);
+        });
     }
 
     function createSearchResult(result, searchTerm) {
@@ -43,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const element = container.firstElementChild;
         
         element.setAttribute('href', result.item.permalink);
-        element.querySelector('[data-title]').innerHTML = highlightText(result.item.title, searchTerm);
+        appendHighlightedText(element.querySelector('[data-title]'), result.item.title, searchTerm);
         
         const imageContainer = element.querySelector('.js-image-container');
         if (result.item.images && result.item.images.thumb) {
@@ -84,16 +92,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         if (result.item.description) {
-            element.querySelector('[data-description]').innerHTML = highlightText(result.item.description, searchTerm);
+            appendHighlightedText(element.querySelector('[data-description]'), result.item.description, searchTerm);
         } else if (result.item.content) {
             const preview = result.item.content.substring(0, 200) + '...';
-            element.querySelector('[data-description]').innerHTML = highlightText(preview, searchTerm);
+            appendHighlightedText(element.querySelector('[data-description]'), preview, searchTerm);
         }
 
         if (result.item.aka && result.item.aka.length > 0) {
             const descriptionElement = element.querySelector('[data-description]');
-            const akaText = `<div class="text-neutral-600 dark:text-neutral-400 mt-1 text-sm mb-3">aka: ${result.item.aka.map(a => highlightText(a, searchTerm)).join(', ')}</div>`;
-            descriptionElement.insertAdjacentHTML('beforeend', akaText);
+            const aka = document.createElement('div');
+            aka.className = 'text-neutral-600 dark:text-neutral-400 mt-1 text-sm mb-3';
+            aka.append(document.createTextNode('aka: '));
+            result.item.aka.forEach((name, index) => {
+                if (index > 0) aka.append(document.createTextNode(', '));
+                const highlightedName = document.createElement('span');
+                appendHighlightedText(highlightedName, name, searchTerm);
+                aka.append(highlightedName);
+            });
+            descriptionElement.append(aka);
         } else {
             element.querySelector('[data-description]').classList.add('mb-3');
         }
@@ -101,10 +117,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (result.item.tags && result.item.tags.length > 0) {
             const tagsContainer = element.querySelector('.js-tags-container');
             tagsContainer.classList.add('flex', 'flex-wrap', 'gap-2', 'mt-auto');
-            const tagsHtml = result.item.tags.map(tag => {
-                return `<span class="badge badge-outline my-1 no-underline">${tag}</span>`;
-            }).join('');
-            tagsContainer.innerHTML = tagsHtml;
+            result.item.tags.forEach((tag) => {
+                const badge = document.createElement('span');
+                badge.className = 'badge badge-outline my-1 no-underline';
+                badge.textContent = tag;
+                tagsContainer.append(badge);
+            });
         }
         
         return element.outerHTML;
@@ -170,19 +188,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 { name: 'title', weight: 2 },
                 { name: 'description', weight: 1.5 },
                 { name: 'tags', weight: 1 },
-                { name: 'aka', weight: 1.8 }
+                { name: 'aka', weight: 1.8 },
+                { name: 'content', weight: 0.7 }
             ],
             includeScore: true,
             threshold: 0.3,
             distance: 100,
-            ignoreLocation: false,
+            ignoreLocation: true,
+            ignoreFieldNorm: true,
             useExtendedSearch: true,
             minMatchCharLength: 2
         });
 
         // Check for search term in URL on page load
         const urlParams = new URLSearchParams(window.location.search);
-        const initialSearchTerm = urlParams.get('q');
+        const initialSearchTerm = urlParams.get('q')?.slice(0, 100);
         if (initialSearchTerm) {
             searchInput.value = initialSearchTerm;
             clearButton?.classList.remove('hidden');
@@ -193,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                const searchTerm = e.target.value.trim();
+                const searchTerm = e.target.value.trim().slice(0, 100);
                 performSearch(searchTerm);
             }, 300);
         });
@@ -257,4 +277,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchResults.classList.add('hidden');
         allRecipes.classList.remove('hidden');
     });
-}); 
+});

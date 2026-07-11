@@ -1,9 +1,40 @@
 [
     {{- range $index, $page := where .Site.RegularPages "Section" "recipe" -}}
         {{- if $index }},{{ end }}
+        {{- $contentParts := slice $page.Plain -}}
+        {{- if eq $page.Params.schemaversion 1 -}}
+            {{- range $page.Params.ingredientgroups -}}
+                {{- with .name }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                {{- range .ingredients -}}
+                    {{- $contentParts = append .name $contentParts -}}
+                    {{- with .note }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- range .options -}}
+                        {{- $contentParts = append .name $contentParts -}}
+                        {{- with .note }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- end -}}
+                {{- end -}}
+            {{- end -}}
+            {{- range $page.Params.steps -}}
+                {{- with .group }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                {{- $contentParts = append .text $contentParts -}}
+                {{- range .timers -}}
+                    {{- with .label }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- with .durationText }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                {{- end -}}
+                {{- range .temperatures -}}
+                    {{- with .mode }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- with .note }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                {{- end -}}
+                {{- range .equipmentSettings -}}
+                    {{- with .kind }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- with .mode }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                    {{- with .note }}{{ $contentParts = append . $contentParts }}{{ end -}}
+                {{- end -}}
+            {{- end -}}
+        {{- end -}}
         {
             "title": {{ $page.Title | jsonify }},
-            "content": {{ $page.Plain | jsonify }},
+            "content": {{ delimit $contentParts " " | jsonify }},
             "permalink": {{ $page.Permalink | jsonify }},
             "summary": {{ $page.Summary | jsonify }},
             "tags": {{ $page.Params.tags | jsonify }},
@@ -22,4 +53,4 @@
             }
         }
     {{- end -}}
-    ] 
+    ]

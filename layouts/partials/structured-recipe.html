@@ -37,13 +37,13 @@
         {{ end }}
         <div class="time-strip">
             {{ with .Params.preptimeminutes }}
-            <div><span>Vorbereitung</span><strong>{{ . }}{{ with $page.Params.preptimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            <div><span>Vorbereitung</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.preptimemaxminutes) }}</strong></div>
             {{ end }}
             {{ with .Params.resttimeminutes }}
-            <div><span>Ruhe</span><strong>{{ . }}{{ with $page.Params.resttimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            <div><span>Ruhe</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.resttimemaxminutes) }}</strong></div>
             {{ end }}
             {{ with .Params.cooktimeminutes }}
-            <div><span>Garzeit</span><strong>{{ . }}{{ with $page.Params.cooktimemaxminutes }}–{{ . }}{{ end }} Min.</strong></div>
+            <div><span>Garzeit</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.cooktimemaxminutes) }}</strong></div>
             {{ end }}
         </div>
         <div class="recipe-actions print:hidden">

@@ -1,0 +1,2 @@
+{{- partial "structured-duration-value.html" .min -}}
+{{- with .max }}–{{ partial "structured-duration-value.html" . }}{{ end -}}

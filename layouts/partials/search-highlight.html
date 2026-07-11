@@ -1,18 +1,31 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
+    const searchQuery = urlParams.get('q')?.slice(0, 100);
     const noHighlight = urlParams.get('noHighlight') === 'true';
     
     if (searchQuery && !noHighlight) {
         function highlightText(node) {
             if (node.nodeType === 3) { // Text node
                 const text = node.nodeValue;
-                const regex = new RegExp(`(${searchQuery})`, 'gi');
-                if (regex.test(text)) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text.replace(regex, '<mark class="bg-amber-200 dark:bg-amber-700 dark:text-white">$1</mark>');
-                    node.parentNode.replaceChild(span, node);
+                const haystack = text.toLocaleLowerCase('de-DE');
+                const needle = searchQuery.toLocaleLowerCase('de-DE');
+                const firstMatch = haystack.indexOf(needle);
+                if (firstMatch !== -1) {
+                    const fragment = document.createDocumentFragment();
+                    let offset = 0;
+                    let match = firstMatch;
+                    while (match !== -1) {
+                        fragment.append(document.createTextNode(text.slice(offset, match)));
+                        const mark = document.createElement('mark');
+                        mark.className = 'bg-amber-200 dark:bg-amber-700 dark:text-white';
+                        mark.textContent = text.slice(match, match + searchQuery.length);
+                        fragment.append(mark);
+                        offset = match + searchQuery.length;
+                        match = haystack.indexOf(needle, offset);
+                    }
+                    fragment.append(document.createTextNode(text.slice(offset)));
+                    node.parentNode.replaceChild(fragment, node);
                 }
             } else if (node.nodeType === 1) { // Element node
                 // Skip script tags and existing highlights
@@ -55,4 +68,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-</script> 
+</script>

@@ -1,0 +1,20 @@
+{{- $minutes := int . -}}
+{{- if ge $minutes 1440 -}}
+    {{- $days := div $minutes 1440 -}}
+    {{- $remainingMinutes := mod $minutes 1440 -}}
+    {{- $hours := div $remainingMinutes 60 -}}
+    {{- $rest := mod $remainingMinutes 60 -}}
+    {{- printf "%d %s" $days (cond (eq $days 1) "Tag" "Tage") -}}
+    {{- if gt $hours 0 }} {{ printf "%d Std." $hours }}{{ end -}}
+    {{- if gt $rest 0 }} {{ printf "%d Min." $rest }}{{ end -}}
+{{- else if ge $minutes 60 -}}
+    {{- $hours := div $minutes 60 -}}
+    {{- $rest := mod $minutes 60 -}}
+    {{- if gt $rest 0 -}}
+        {{- printf "%d Std. %d Min." $hours $rest -}}
+    {{- else -}}
+        {{- printf "%d Std." $hours -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%d Min." $minutes -}}
+{{- end -}}
