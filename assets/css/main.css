@@ -210,7 +210,12 @@
 .search-dialog-meta { display: flex; justify-content: space-between; margin: .8rem .15rem .65rem; color: color-mix(in srgb, var(--site-ink) 50%, transparent); font-size: .69rem; }
 .search-dialog-meta p { margin: 0; color: color-mix(in srgb, var(--site-ink) 72%, transparent); font-weight: 700; }
 .search-dialog-results { min-height: 0; flex: 1; padding-right: .65rem; overflow-y: auto; overscroll-behavior: contain; }
-.search-dialog-results.recipe-index { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1.6rem; }
+.search-dialog-results.recipe-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 0 1.6rem;
+}
 .search-dialog-results .recipe-index-item { padding: 1rem 0; }
 .search-dialog-results mark { border-radius: .15rem; background: color-mix(in srgb, #e5b66c 44%, transparent); color: inherit; }
 .search-result-aka { display: block; margin-top: .3rem; color: color-mix(in srgb, var(--site-ink) 54%, transparent); font-size: .72rem; }
