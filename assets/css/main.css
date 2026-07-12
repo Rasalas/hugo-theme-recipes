@@ -68,14 +68,11 @@
     width: 2.55rem;
     height: 2.55rem;
     place-items: center;
-    border: 1px solid var(--site-line);
-    border-radius: 50% 50% 45% 55%;
-    background: color-mix(in srgb, #d6a65f 13%, var(--site-paper));
     transform: rotate(-3deg);
-    transition: transform .25s ease, background .25s ease;
+    transition: transform .25s ease, filter .25s ease;
 }
-.site-brand:hover .site-brand-mark { background: color-mix(in srgb, #d6a65f 24%, var(--site-paper)); transform: rotate(2deg); }
-.site-brand-mark svg { width: 1.55rem; stroke: currentColor; stroke-width: 1.35; }
+.site-brand:hover .site-brand-mark { filter: brightness(1.08); transform: rotate(2deg); }
+.site-brand-mark img { display: block; width: 2.2rem; height: 2.2rem; object-fit: contain; }
 .site-brand-copy { display: grid; line-height: 1; }
 .site-brand-copy strong { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: 1.12rem; letter-spacing: -.025em; }
 .site-brand-copy small { margin-top: .28rem; color: color-mix(in srgb, var(--site-ink) 57%, transparent); font-size: .58rem; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
