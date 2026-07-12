@@ -22,10 +22,15 @@
       {{ partial "search-input.html" $page }}
     </div>
 
-    <button type="button" id="mobile-menu-button" class="site-menu-toggle" aria-controls="mobile-menu" aria-expanded="false">
-      <span class="sr-only">Navigation öffnen</span>
-      <span></span><span></span>
-    </button>
+    <div class="site-nav-mobile-actions">
+      <button type="button" class="site-mobile-search" data-search-open aria-haspopup="dialog" aria-label="Rezepte durchsuchen">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+      </button>
+      <button type="button" id="mobile-menu-button" class="site-menu-toggle" aria-controls="mobile-menu" aria-expanded="false">
+        <span class="sr-only">Navigation öffnen</span>
+        <span></span><span></span>
+      </button>
+    </div>
 
     <div id="mobile-menu" class="site-nav-links" data-open="false">
       {{ with index site.Menus $menuID }}
@@ -33,17 +38,22 @@
         <a href="{{ .URL }}"{{ if $page.IsMenuCurrent $menuID . }} aria-current="page"{{ end }}>{{ .Name }}</a>
         {{ end }}
       {{ end }}
-      <a href="{{ "/tags/" | relURL }}"{{ if eq $page.RelPermalink "/tags/" }} aria-current="page"{{ end }}>
-        <span>Kategorien</span><span aria-hidden="true">↗</span>
+      <a href="{{ "/tags/" | relURL }}" class="site-nav-action site-nav-category"{{ if eq $page.RelPermalink "/tags/" }} aria-current="page"{{ end }}>
+        <span class="site-nav-action-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5.5h6l9.5 9.5-4.5 4.5L5.5 10V4Z"></path><circle cx="8" cy="8" r="1"></circle></svg>
+        </span>
+        <span class="site-nav-action-copy"><strong>Kategorien</strong><small>Nach Themen stöbern</small></span>
       </a>
       {{ if $isDevelopment }}
-      <a href="http://localhost:3000/recipe/form.php" class="site-nav-new">
+      <a href="http://localhost:3000/recipe/form.php" class="site-nav-action site-nav-new">
       {{ else }}
-      <a href="{{ "/backend/recipe/form.php" | relURL }}" class="site-nav-new">
+      <a href="{{ "/backend/recipe/form.php" | relURL }}" class="site-nav-action site-nav-new">
       {{ end }}
-        <span aria-hidden="true">＋</span><span>Neues Rezept</span>
+        <span class="site-nav-action-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"></path></svg>
+        </span>
+        <span class="site-nav-action-copy"><strong>Neues Rezept</strong><small>Rezept eintragen</small></span>
       </a>
-      <div class="site-nav-mobile-search">{{ partial "search-input.html" $page }}</div>
     </div>
   </div>
 </nav>

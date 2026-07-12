@@ -215,7 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('keydown', (event) => {
-        if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
+        const target = event.target;
+        const isTyping = target instanceof HTMLElement
+            && (target.matches('input, textarea, select') || target.isContentEditable);
+        const commandShortcut = (event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k';
+        const slashShortcut = event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey
+            && !event.shiftKey && !isTyping && !dialog.open;
+        if (commandShortcut || slashShortcut) {
             event.preventDefault();
             openSearch();
         }
