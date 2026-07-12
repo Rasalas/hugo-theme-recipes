@@ -1,0 +1,49 @@
+<dialog id="recipe-search-dialog" class="search-dialog" aria-labelledby="search-dialog-title">
+  <div class="search-dialog-shell">
+    <header class="search-dialog-header">
+      <div>
+        <span class="search-dialog-kicker">Im Familienkochbuch</span>
+        <h2 id="search-dialog-title">Was möchtest du kochen?</h2>
+      </div>
+      <button type="button" class="search-dialog-close" data-search-close aria-label="Suche schließen">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+      </button>
+    </header>
+
+    <div class="search-dialog-field">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+      <label for="search-input" class="sr-only">Rezept suchen</label>
+      <input type="search" id="search-input" placeholder="Titel, Zutat oder Familienname …" maxlength="100" autocomplete="off" spellcheck="false">
+      <button type="button" id="search-clear" class="search-clear hidden" aria-label="Suchbegriff löschen">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 7 10 10M17 7 7 17"></path></svg>
+      </button>
+    </div>
+
+    {{ partial "search-controls.html" . }}
+
+    <div class="search-dialog-meta">
+      <p id="search-status" aria-live="polite" aria-atomic="true">Bereit zum Suchen.</p>
+      <span>Mindestens 2 Zeichen</span>
+    </div>
+
+    <div id="search-idle" class="search-idle">
+      <span aria-hidden="true">✦</span>
+      <p>Suche nach einem Rezept, einer Zutat oder einem Tag.</p>
+      <small>Zum Beispiel „Hefe“, „schnell“ oder „Monika“</small>
+    </div>
+    <div id="no-results" class="search-no-results hidden">
+      <span aria-hidden="true">∅</span>
+      <h3>Nichts Passendes gefunden</h3>
+      <p>Versuche einen kürzeren Begriff oder entferne einen Filter.</p>
+      <button type="button" data-search-reset>Suche zurücksetzen</button>
+    </div>
+    <div id="search-results" class="recipe-index search-dialog-results hidden"></div>
+
+    <footer class="search-dialog-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigieren</span>
+      <span><kbd>Esc</kbd> schließen</span>
+    </footer>
+  </div>
+</dialog>
+
+{{ partial "search-result-template.html" . }}

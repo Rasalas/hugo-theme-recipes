@@ -12,20 +12,6 @@
                 {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
             </div>
 
-            <!-- Suchergebnisse -->
-            <div class="container mx-auto px-4">
-                {{ partial "search-controls.html" . }}
-                <div id="no-results" class="hidden text-center mb-8">
-                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
-                    <button onclick="window.showAllRecipes()" 
-                            class="btn btn-outline btn-neutral">
-                        Alle Rezepte anzeigen
-                    </button>
-                </div>
-                <div id="search-results" class="recipe-index hidden">
-                    <!-- Suchergebnisse werden hier dynamisch eingefügt -->
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -37,9 +23,4 @@
     </svg>
 </button>
 
-{{ partial "search-result-template.html" . }}
-
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="/js/search-utils.js?v=2"></script>
-<script src="/js/search.js?v=3"></script>
 {{ end }}

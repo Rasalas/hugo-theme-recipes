@@ -1,44 +1,8 @@
 {{ define "main" }}
-<div class="min-h-screen bg-base-200">
-    <div class="pt-16 md:pt-8 pb-4 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="container mx-auto px-4">
-                <header class="recipe-index-header">
-                    <span>Rezeptsuche</span>
-                    <h1>Was möchtest du kochen?</h1>
-                </header>
-                {{ partial "search-controls.html" . }}
-                <div id="no-results" class="hidden text-center mb-8">
-                    <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
-                    <button onclick="window.showAllRecipes()" 
-                            class="btn btn-outline btn-neutral">
-                        Alle Rezepte anzeigen
-                    </button>
-                </div>
-                <!-- Suchergebnisse -->
-                <div id="search-results" class="recipe-index hidden min-h-[50vh]">
-                    <!-- Suchergebnisse werden hier dynamisch eingefügt -->
-                </div>
-
-                <!-- Alle Rezepte (werden ausgeblendet bei Suche) -->
-                <div id="all-recipes">
-                    {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Nach oben Button -->
-<button id="toTopButton" type="button" onclick="scrollToTop()" class="to-top-button opacity-0 invisible" aria-label="Nach oben">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-    </svg>
-</button>
-
-{{ partial "search-result-template.html" . }}
-
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="/js/search-utils.js?v=2"></script>
-<script src="/js/search.js?v=3"></script>
+<section class="search-page" data-search-autostart>
+  <span>Rezeptsuche</span>
+  <h1>Das ganze Kochbuch.<br>Ein Griff.</h1>
+  <p>Durchsuche {{ len (where .Site.RegularPages "Section" "recipe") }} Familienrezepte nach Namen, Zutaten und Tags.</p>
+  <button type="button" data-search-open>Suche öffnen <span aria-hidden="true">→</span></button>
+</section>
 {{ end }}

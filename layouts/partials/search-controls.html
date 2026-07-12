@@ -1,16 +1,17 @@
-<div id="search-controls" class="hidden mb-6">
-  <label for="search-tag-filter" class="text-sm font-medium mr-2">Nach Tag filtern</label>
-  <select id="search-tag-filter" class="select select-bordered select-sm">
+<div id="search-controls" class="search-controls hidden">
+  <label class="search-filter" for="search-tag-filter">
+    <span>Tag</span>
+  <select id="search-tag-filter">
     <option value="">Alle Tags</option>
   </select>
-  <span id="search-duration-control" class="hidden ml-4">
-    <label for="search-duration-filter" class="text-sm font-medium mr-2">Maximale Dauer</label>
-    <select id="search-duration-filter" class="select select-bordered select-sm">
+  </label>
+  <label id="search-duration-control" class="search-filter hidden" for="search-duration-filter">
+    <span>Dauer</span>
+    <select id="search-duration-filter">
       <option value="">Beliebig</option>
       <option value="30">Bis 30 Minuten</option>
       <option value="60">Bis 1 Stunde</option>
       <option value="120">Bis 2 Stunden</option>
     </select>
-  </span>
+  </label>
 </div>
-<p id="search-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>

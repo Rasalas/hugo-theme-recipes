@@ -35,6 +35,227 @@
     }
 }
 
+/* Editorial kitchen navigation */
+.site-header {
+    position: fixed;
+    z-index: 50;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--site-line) 62%, transparent);
+    background: color-mix(in srgb, var(--site-paper) 88%, transparent);
+    backdrop-filter: blur(18px) saturate(1.15);
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease, background .25s ease;
+}
+
+.site-header.is-hidden { transform: translateY(-110%); }
+.site-header.is-scrolled { box-shadow: 0 .6rem 2rem color-mix(in srgb, var(--site-shadow) 72%, transparent); }
+.site-main { padding-top: 5.25rem; }
+.site-nav { color: var(--site-ink); }
+.site-nav-inner {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) minmax(18rem, 34rem) minmax(12rem, 1fr);
+    align-items: center;
+    gap: clamp(1rem, 3vw, 3rem);
+    width: min(100% - 2rem, 92rem);
+    min-height: 5.25rem;
+    margin: 0 auto;
+}
+
+.site-brand { display: inline-flex; align-items: center; gap: .75rem; width: max-content; color: inherit; text-decoration: none; }
+.site-brand-mark {
+    display: grid;
+    width: 2.55rem;
+    height: 2.55rem;
+    place-items: center;
+    border: 1px solid var(--site-line);
+    border-radius: 50% 50% 45% 55%;
+    background: color-mix(in srgb, #d6a65f 13%, var(--site-paper));
+    transform: rotate(-3deg);
+    transition: transform .25s ease, background .25s ease;
+}
+.site-brand:hover .site-brand-mark { background: color-mix(in srgb, #d6a65f 24%, var(--site-paper)); transform: rotate(2deg); }
+.site-brand-mark svg { width: 1.55rem; stroke: currentColor; stroke-width: 1.35; }
+.site-brand-copy { display: grid; line-height: 1; }
+.site-brand-copy strong { font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: 1.12rem; letter-spacing: -.025em; }
+.site-brand-copy small { margin-top: .28rem; color: color-mix(in srgb, var(--site-ink) 57%, transparent); font-size: .58rem; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
+
+.nav-search-trigger {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    width: 100%;
+    min-height: 2.85rem;
+    padding: .35rem .45rem .35rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--site-line) 85%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--site-paper) 60%, transparent);
+    color: color-mix(in srgb, var(--site-ink) 62%, transparent);
+    text-align: left;
+    transition: border-color .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
+}
+.nav-search-trigger:hover { border-color: #d6a65f; color: var(--site-ink); box-shadow: 0 .35rem 1rem var(--site-shadow); transform: translateY(-1px); }
+.nav-search-trigger:focus-visible { outline: 2px solid #d6a65f; outline-offset: 3px; }
+.nav-search-trigger svg { width: 1.1rem; flex: 0 0 auto; stroke-width: 1.8; }
+.nav-search-trigger span { overflow: hidden; flex: 1; font-size: .83rem; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.nav-search-trigger kbd,
+.search-dialog-footer kbd {
+    border: 1px solid color-mix(in srgb, var(--site-line) 82%, transparent);
+    border-bottom-width: 2px;
+    border-radius: .38rem;
+    background: color-mix(in srgb, var(--site-paper) 70%, var(--site-line));
+    color: color-mix(in srgb, var(--site-ink) 60%, transparent);
+    font-family: inherit;
+    font-size: .66rem;
+    line-height: 1;
+}
+.nav-search-trigger kbd { padding: .47rem .6rem; }
+
+.site-nav-links { display: flex; align-items: center; justify-content: flex-end; gap: 1.1rem; }
+.site-nav-links > a { display: inline-flex; align-items: center; gap: .3rem; color: inherit; font-size: .76rem; font-weight: 720; letter-spacing: .02em; text-decoration: none; }
+.site-nav-links > a:not(.site-nav-new)::after { display: block; width: 0; height: 1px; background: #d6a65f; content: ""; transition: width .2s ease; }
+.site-nav-links > a:not(.site-nav-new):hover::after,
+.site-nav-links > a[aria-current="page"]::after { width: 1.25rem; }
+.site-nav-new { padding: .65rem .85rem; border: 1px solid var(--site-ink); border-radius: 999px; transition: background .2s ease, color .2s ease; }
+.site-nav-new:hover { background: var(--site-ink); color: var(--site-paper); }
+.site-menu-toggle, .site-nav-mobile-search { display: none; }
+
+/* Global search palette */
+.search-dialog {
+    width: min(68rem, calc(100vw - 2rem));
+    max-width: none;
+    max-height: min(52rem, calc(100dvh - 2rem));
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--site-line) 85%, transparent);
+    border-radius: 1.5rem .5rem 1.5rem .5rem;
+    background: var(--site-paper);
+    color: var(--site-ink);
+    box-shadow: 0 2rem 7rem rgba(30, 22, 15, .32);
+}
+.search-dialog[open] { animation: search-in .34s cubic-bezier(.22, 1, .36, 1); }
+.search-dialog::backdrop { background: rgba(31, 24, 18, .58); backdrop-filter: blur(8px); animation: backdrop-in .25s ease; }
+@keyframes search-in { from { opacity: 0; transform: translateY(1.5rem) scale(.975); } }
+@keyframes backdrop-in { from { opacity: 0; } }
+.search-dialog-shell { display: flex; flex-direction: column; max-height: min(52rem, calc(100dvh - 2rem)); padding: clamp(1.25rem, 3vw, 2.25rem); }
+.search-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; }
+.search-dialog-kicker { display: block; margin-bottom: .4rem; color: #b68137; font-size: .62rem; font-weight: 850; letter-spacing: .2em; text-transform: uppercase; }
+.search-dialog-header h2 { margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 600; line-height: .98; letter-spacing: -.05em; }
+.search-dialog-close {
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--site-line);
+    border-radius: 50%;
+    transition: background .2s ease, transform .2s ease;
+}
+.search-dialog-close:hover { background: color-mix(in srgb, #d6a65f 18%, transparent); transform: rotate(4deg); }
+.search-dialog-close svg, .search-clear svg { width: 1.1rem; stroke-width: 1.6; }
+.search-dialog-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .85rem;
+    margin-top: clamp(1.25rem, 3vw, 2rem);
+    padding: .45rem .55rem .45rem 1rem;
+    border: 1px solid var(--site-line);
+    border-radius: .85rem .28rem .85rem .28rem;
+    background: color-mix(in srgb, var(--site-paper) 58%, var(--site-line));
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 35%, transparent);
+}
+.search-dialog-field:focus-within { border-color: #c18b41; box-shadow: 0 0 0 3px color-mix(in srgb, #d6a65f 18%, transparent); }
+.search-dialog-field > svg { width: 1.45rem; color: #b68137; stroke-width: 1.6; }
+.search-dialog-field input { width: 100%; padding: .65rem 0; border: 0; outline: 0; background: transparent; color: inherit; font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: clamp(1.2rem, 2vw, 1.55rem); }
+.search-dialog-field input::placeholder { color: color-mix(in srgb, var(--site-ink) 42%, transparent); }
+.search-dialog-field input::-webkit-search-cancel-button { display: none; }
+.search-clear { display: grid; width: 2.35rem; height: 2.35rem; place-items: center; border-radius: 50%; color: color-mix(in srgb, var(--site-ink) 68%, transparent); }
+.search-clear:hover { background: color-mix(in srgb, var(--site-line) 45%, transparent); color: var(--site-ink); }
+
+.search-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+.search-filter { display: flex; align-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--site-line) 82%, transparent); border-radius: 999px; background: transparent; }
+.search-filter > span { padding-left: .85rem; color: color-mix(in srgb, var(--site-ink) 50%, transparent); font-size: .62rem; font-weight: 820; letter-spacing: .12em; text-transform: uppercase; }
+.search-filter select { max-width: 12rem; padding: .5rem 1.9rem .5rem .45rem; border: 0; outline: 0; background: transparent; color: inherit; font-size: .76rem; font-weight: 680; }
+.search-dialog-meta { display: flex; justify-content: space-between; margin: .8rem .15rem .65rem; color: color-mix(in srgb, var(--site-ink) 50%, transparent); font-size: .69rem; }
+.search-dialog-meta p { margin: 0; color: color-mix(in srgb, var(--site-ink) 72%, transparent); font-weight: 700; }
+.search-dialog-results { min-height: 0; padding-right: .35rem; overflow-y: auto; overscroll-behavior: contain; }
+.search-dialog-results.recipe-index { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1.6rem; }
+.search-dialog-results .recipe-index-item { padding: 1rem 0; }
+.search-dialog-results mark { border-radius: .15rem; background: color-mix(in srgb, #e5b66c 44%, transparent); color: inherit; }
+.search-result-aka { display: block; margin-top: .3rem; color: color-mix(in srgb, var(--site-ink) 54%, transparent); font-size: .72rem; }
+.search-idle, .search-no-results { display: grid; min-height: 17rem; flex: 1; place-content: center; justify-items: center; padding: 2rem; text-align: center; }
+.search-idle > span, .search-no-results > span { color: #c18b41; font-family: "Iowan Old Style", Georgia, serif; font-size: 2rem; }
+.search-idle p, .search-no-results h3 { margin: .8rem 0 .25rem; font-family: "Iowan Old Style", Georgia, serif; font-size: 1.4rem; font-weight: 600; }
+.search-idle small, .search-no-results p { margin: 0; color: color-mix(in srgb, var(--site-ink) 52%, transparent); font-size: .78rem; }
+.search-no-results button { margin-top: 1.1rem; padding: .62rem 1rem; border: 1px solid var(--site-line); border-radius: 999px; font-size: .75rem; font-weight: 750; }
+.search-dialog-footer { display: flex; justify-content: flex-end; gap: 1.2rem; padding-top: .8rem; border-top: 1px solid color-mix(in srgb, var(--site-line) 55%, transparent); color: color-mix(in srgb, var(--site-ink) 45%, transparent); font-size: .65rem; }
+.search-dialog-footer span { display: flex; align-items: center; gap: .25rem; }
+.search-dialog-footer kbd { padding: .25rem .35rem; }
+.search-controls.hidden,
+.search-filter.hidden,
+.search-clear.hidden,
+.search-idle.hidden,
+.search-no-results.hidden,
+.search-dialog-results.hidden { display: none; }
+
+.search-page { display: grid; min-height: calc(100dvh - 9rem); place-content: center; padding: 3rem 1.5rem; background: radial-gradient(circle at 70% 25%, color-mix(in srgb, #d6a65f 16%, transparent), transparent 28%); text-align: center; }
+.search-page > span { color: #b68137; font-size: .68rem; font-weight: 850; letter-spacing: .2em; text-transform: uppercase; }
+.search-page h1 { margin: .8rem 0 1rem; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 600; line-height: .88; letter-spacing: -.065em; }
+.search-page p { max-width: 34rem; margin: 0 auto; color: color-mix(in srgb, var(--site-ink) 62%, transparent); }
+.search-page button { width: max-content; margin: 2rem auto 0; padding: .85rem 1.2rem; border-bottom: 1px solid var(--site-ink); font-size: .78rem; font-weight: 780; letter-spacing: .08em; text-transform: uppercase; }
+
+@media (max-width: 900px) {
+    .site-nav-inner { grid-template-columns: 1fr auto; min-height: 4.65rem; }
+    .site-main { padding-top: 4.65rem; }
+    .site-nav-search { display: none; }
+    .site-menu-toggle { display: grid; width: 2.7rem; height: 2.7rem; place-content: center; gap: .35rem; border: 1px solid var(--site-line); border-radius: 50%; }
+    .site-menu-toggle span:not(.sr-only) { display: block; width: 1rem; height: 1px; background: currentColor; transition: transform .2s ease; }
+    .site-menu-toggle[aria-expanded="true"] span:nth-last-child(2) { transform: translateY(.2rem) rotate(45deg); }
+    .site-menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-.2rem) rotate(-45deg); }
+    .site-nav-links {
+        position: absolute;
+        top: calc(100% + 1px);
+        right: 0;
+        left: 0;
+        display: grid;
+        gap: 0;
+        padding: .6rem 1rem 1.25rem;
+        border-bottom: 1px solid var(--site-line);
+        background: var(--site-paper);
+        box-shadow: 0 1.25rem 2.5rem var(--site-shadow);
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+        transform: translateY(-.6rem);
+        transition: opacity .2s ease, transform .25s ease;
+    }
+    .site-nav-links[data-open="true"] { opacity: 1; pointer-events: auto; visibility: visible; transform: translateY(0); }
+    .site-nav-links > a { justify-content: space-between; padding: .85rem .2rem; border-bottom: 1px solid color-mix(in srgb, var(--site-line) 55%, transparent); font-family: "Iowan Old Style", Georgia, serif; font-size: 1.15rem; font-weight: 600; }
+    .site-nav-new { margin: .45rem 0 .8rem; padding: .8rem 1rem !important; border: 1px solid var(--site-ink) !important; font-family: inherit !important; font-size: .78rem !important; font-weight: 750 !important; }
+    .site-nav-mobile-search { display: block; }
+    .search-dialog-results.recipe-index { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+    .site-nav-inner { width: min(100% - 1.25rem, 92rem); }
+    .site-brand-copy small { display: none; }
+    .search-dialog { width: 100%; max-height: 94dvh; margin: auto 0 0; border-width: 1px 0 0; border-radius: 1.4rem 1.4rem 0 0; }
+    .search-dialog[open] { animation-name: search-sheet-in; }
+    @keyframes search-sheet-in { from { opacity: 0; transform: translateY(100%); } }
+    .search-dialog-shell { max-height: 94dvh; padding: 1.2rem 1rem .8rem; }
+    .search-dialog-header h2 { max-width: 18rem; font-size: 2.15rem; }
+    .search-dialog-meta > span, .search-dialog-footer { display: none; }
+    .search-dialog-results .recipe-index-item { grid-template-columns: 5.25rem minmax(0, 1fr) .75rem; }
+    .search-idle, .search-no-results { min-height: 14rem; }
+    .search-filter { flex: 1; }
+    .search-filter select { max-width: 9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-header, .search-dialog[open], .search-dialog::backdrop { animation: none; transition: none; }
+}
+
 .recipe-hero {
     overflow: hidden;
     margin-bottom: 2rem;

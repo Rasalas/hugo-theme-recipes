@@ -1,7 +1,8 @@
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+    const dialog = document.getElementById('recipe-search-dialog');
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
-    const allRecipes = document.getElementById('all-recipes');
+    const searchIdle = document.getElementById('search-idle');
     const noResults = document.getElementById('no-results');
     const resultTemplate = document.getElementById('search-result-template');
     const imageTemplate = document.getElementById('search-image-template');
@@ -11,29 +12,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const durationControl = document.getElementById('search-duration-control');
     const searchControls = document.getElementById('search-controls');
     const searchStatus = document.getElementById('search-status');
-    const toTopButton = document.getElementById('toTopButton');
     const clearButton = document.getElementById('search-clear');
     const utils = window.recipeSearchUtils;
 
-    if (!searchInput || !searchResults || !allRecipes || !noResults || !resultTemplate || !utils) return;
+    if (!dialog || !searchInput || !searchResults || !resultTemplate || !utils) return;
 
     let fuse;
     let recipes = [];
-
-    function appendHighlightedText(target, text, searchTerm) {
-        const fragment = document.createDocumentFragment();
-        utils.highlightSegments(text, searchTerm).forEach((segment) => {
-            if (!segment.highlighted) {
-                fragment.append(document.createTextNode(segment.text));
-                return;
-            }
-            const mark = document.createElement('mark');
-            mark.className = 'bg-amber-200 dark:bg-amber-700 dark:text-white';
-            mark.textContent = segment.text;
-            fragment.append(mark);
-        });
-        target.replaceChildren(fragment);
-    }
+    let debounceTimer;
+    let suppressCloseReset = false;
 
     function safeUrl(value) {
         try {
@@ -44,10 +31,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function createSearchResult(result, searchTerm) {
+    function appendHighlightedText(target, text, query) {
+        const fragment = document.createDocumentFragment();
+        utils.highlightSegments(text, query).forEach((segment) => {
+            if (!segment.highlighted) {
+                fragment.append(document.createTextNode(segment.text));
+                return;
+            }
+            const mark = document.createElement('mark');
+            mark.textContent = segment.text;
+            fragment.append(mark);
+        });
+        target.replaceChildren(fragment);
+    }
+
+    function createSearchResult(result, query) {
         const element = resultTemplate.content.firstElementChild.cloneNode(true);
         element.href = safeUrl(result.item.permalink);
-        appendHighlightedText(element.querySelector('[data-title]'), result.item.title, searchTerm);
+        appendHighlightedText(element.querySelector('[data-title]'), result.item.title, query);
 
         const imageContainer = element.querySelector('.js-image-container');
         if (result.item.images?.thumb && imageTemplate) {
@@ -66,30 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const description = element.querySelector('[data-description]');
-        if (result.item.description) {
-            appendHighlightedText(description, result.item.description, searchTerm);
-        } else if (result.item.content) {
-            const suffix = result.item.content.length > 200 ? '…' : '';
-            appendHighlightedText(description, result.item.content.substring(0, 200) + suffix, searchTerm);
-        }
+        const preview = result.item.description || String(result.item.content || '').substring(0, 180);
+        appendHighlightedText(description, preview, query);
 
         if (result.item.aka?.length) {
-            const aka = document.createElement('div');
-            aka.className = 'text-neutral-600 dark:text-neutral-400 mt-1 text-sm mb-3';
-            aka.append(document.createTextNode('aka: '));
-            result.item.aka.forEach((name, index) => {
-                if (index > 0) aka.append(document.createTextNode(', '));
-                const highlightedName = document.createElement('span');
-                appendHighlightedText(highlightedName, name, searchTerm);
-                aka.append(highlightedName);
-            });
+            const aka = document.createElement('span');
+            aka.className = 'search-result-aka';
+            aka.textContent = `Auch: ${result.item.aka.join(', ')}`;
             description.append(aka);
-        } else {
-            description.classList.add('mb-3');
         }
 
         const tagsContainer = element.querySelector('.js-tags-container');
-        (result.item.tags || []).forEach((tag) => {
+        (result.item.tags || []).slice(0, 4).forEach((tag) => {
             const badge = document.createElement('span');
             badge.className = 'badge badge-outline my-1 no-underline';
             badge.textContent = tag;
@@ -98,137 +87,197 @@ document.addEventListener('DOMContentLoaded', async () => {
         return element;
     }
 
+    function normalizedState(rawState) {
+        const duration = String(rawState.duration ?? '');
+        const knownDuration = durationFilter && [...durationFilter.options].some((option) => option.value === duration);
+        return {
+            query: utils.normalizeSearchTerm(rawState.query),
+            tag: String(rawState.tag ?? '').trim().slice(0, 100),
+            duration: knownDuration && !durationControl?.classList.contains('hidden') ? duration : '',
+        };
+    }
+
     function syncHistory(state, mode) {
         if (mode === 'none') return;
         const url = utils.buildSearchUrl(window.location.href, state);
         window.history[mode === 'push' ? 'pushState' : 'replaceState'](state, '', url);
     }
 
-    function showAllRecipes() {
+    function showIdle() {
         searchResults.replaceChildren();
         searchResults.classList.add('hidden');
-        allRecipes.classList.remove('hidden');
         noResults.classList.add('hidden');
-        searchStatus.textContent = `${recipes.length} Rezepte werden angezeigt.`;
+        searchIdle.classList.remove('hidden');
+        searchStatus.textContent = fuse ? 'Bereit zum Suchen.' : 'Suchindex wird geladen …';
     }
 
     function renderResults(results, query) {
         const fragment = document.createDocumentFragment();
         results.forEach((result) => fragment.append(createSearchResult(result, query)));
         searchResults.replaceChildren(fragment);
-        searchResults.classList.remove('hidden');
-        allRecipes.classList.add('hidden');
+        searchResults.classList.toggle('hidden', results.length === 0);
         noResults.classList.toggle('hidden', results.length > 0);
-        searchStatus.textContent = results.length === 1 ? '1 Rezept gefunden.' : `${results.length} Rezepte gefunden.`;
+        searchIdle.classList.add('hidden');
+        searchStatus.textContent = results.length === 1 ? '1 Rezept gefunden' : `${results.length} Rezepte gefunden`;
     }
 
     function applySearchState(rawState, historyMode = 'none', syncControls = true) {
-        if (!fuse) return;
-        const state = {
-            query: utils.normalizeSearchTerm(rawState.query),
-            tag: String(rawState.tag ?? '').trim().slice(0, 100),
-            duration: String(rawState.duration ?? ''),
-        };
+        const state = normalizedState(rawState);
         if (syncControls) searchInput.value = state.query;
         if (tagFilter) tagFilter.value = [...tagFilter.options].some((option) => option.value === state.tag) ? state.tag : '';
         state.tag = tagFilter?.value || '';
-        if (durationFilter) durationFilter.value = [...durationFilter.options].some((option) => option.value === state.duration) ? state.duration : '';
-        state.duration = durationControl?.classList.contains('hidden') ? '' : (durationFilter?.value || '');
+        if (durationFilter) durationFilter.value = state.duration;
         clearButton?.classList.toggle('hidden', !searchInput.value.trim());
         syncHistory(state, historyMode);
 
-        if (!state.query && !state.tag && !state.duration) {
-            showAllRecipes();
+        if (!fuse || (!state.query && !state.tag && !state.duration)) {
+            showIdle();
             return;
         }
 
-        const matches = state.query ? fuse.search(state.query).filter((result) => result.score < 0.4) : recipes.map((item) => ({ item, score: 0 }));
+        const matches = state.query
+            ? fuse.search(state.query).filter((result) => result.score < 0.4)
+            : recipes.map((item) => ({ item, score: 0 }));
         const tagged = utils.filterResultsByTag(matches, state.tag);
-        renderResults(utils.uniqueResults(utils.filterResultsByDuration(tagged, state.duration)), state.query);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const filtered = utils.filterResultsByDuration(tagged, state.duration);
+        renderResults(utils.uniqueResults(filtered), state.query);
     }
 
-    function populateTags() {
-        if (!tagFilter) return;
-        const tags = [...new Set(recipes.flatMap((recipe) => recipe.tags || []))].sort((a, b) => a.localeCompare(b, 'de'));
-        tags.forEach((tag) => {
-            const option = document.createElement('option');
-            option.value = tag;
-            option.textContent = tag;
-            tagFilter.append(option);
-        });
-        searchControls?.classList.remove('hidden');
-        durationControl?.classList.toggle('hidden', !utils.durationFilterAvailable(recipes));
+    function openSearch() {
+        if (!dialog.open) dialog.showModal();
+        document.dispatchEvent(new CustomEvent('recipe-search-opened'));
+        requestAnimationFrame(() => searchInput.focus());
     }
 
-    try {
-        const response = await fetch(`/index.json?h=${encodeURIComponent(window.RECIPE_HASH || 'dev')}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        recipes = await response.json();
-        fuse = new Fuse(recipes, {
-            keys: [
-                { name: 'title', weight: 2 },
-                { name: 'aka', weight: 1.8 },
-                { name: 'description', weight: 1.5 },
-                { name: 'tags', weight: 1 },
-                { name: 'content', weight: 0.7 },
-            ],
-            includeScore: true,
-            threshold: 0.3,
-            distance: 100,
-            ignoreLocation: true,
-            ignoreFieldNorm: true,
-            useExtendedSearch: false,
-            minMatchCharLength: 2,
-        });
-
-        populateTags();
-        applySearchState(utils.parseSearchState(window.location.search));
-
-        let debounceTimer;
-        searchInput.addEventListener('input', (event) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => applySearchState({
-                query: event.target.value,
-                tag: tagFilter?.value,
-                duration: durationFilter?.value,
-            }, 'replace', false), 300);
-        });
-        tagFilter?.addEventListener('change', () => applySearchState({
-            query: searchInput.value,
-            tag: tagFilter.value,
-            duration: durationFilter?.value,
-        }, 'push'));
-        durationFilter?.addEventListener('change', () => applySearchState({
-            query: searchInput.value,
-            tag: tagFilter?.value,
-            duration: durationFilter.value,
-        }, 'push'));
-        window.addEventListener('popstate', () => applySearchState(utils.parseSearchState(window.location.search)));
-
-        window.showAllRecipes = function () {
-            searchInput.value = '';
-            if (tagFilter) tagFilter.value = '';
-            if (durationFilter) durationFilter.value = '';
-            clearButton?.classList.add('hidden');
-            applySearchState({ query: '', tag: '', duration: '' }, 'push');
-        };
-    } catch (error) {
-        console.error('Error loading search index:', error);
-        const message = document.createElement('p');
-        message.className = 'text-red-500 dark:text-red-400 text-center';
-        message.textContent = 'Fehler beim Laden der Suche.';
-        searchResults.replaceChildren(message);
-        searchResults.classList.remove('hidden');
-        searchStatus.textContent = 'Die Suche konnte nicht geladen werden.';
+    function closeSearchWithoutReset() {
+        suppressCloseReset = true;
+        if (dialog.open) dialog.close();
     }
 
-    window.addEventListener('scroll', () => {
-        if (!toTopButton) return;
-        const scrolled = window.scrollY > 200;
-        toTopButton.classList.toggle('opacity-0', !scrolled);
-        toTopButton.classList.toggle('invisible', !scrolled);
-        toTopButton.classList.toggle('opacity-100', scrolled);
+    function resetSearch(historyMode = 'replace') {
+        searchInput.value = '';
+        if (tagFilter) tagFilter.value = '';
+        if (durationFilter) durationFilter.value = '';
+        applySearchState({ query: '', tag: '', duration: '' }, historyMode);
+    }
+
+    document.querySelectorAll('[data-search-open]').forEach((button) => button.addEventListener('click', openSearch));
+    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-search-reset]')?.addEventListener('click', () => {
+        resetSearch();
+        searchInput.focus();
     });
-    window.scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+        if (suppressCloseReset) {
+            suppressCloseReset = false;
+            return;
+        }
+        resetSearch('replace');
+    });
+
+    searchInput.addEventListener('input', (event) => {
+        clearTimeout(debounceTimer);
+        clearButton?.classList.toggle('hidden', !event.target.value.trim());
+        debounceTimer = setTimeout(() => applySearchState({
+            query: event.target.value,
+            tag: tagFilter?.value,
+            duration: durationFilter?.value,
+        }, 'replace', false), 180);
+    });
+    clearButton?.addEventListener('click', () => {
+        resetSearch();
+        searchInput.focus();
+    });
+    tagFilter?.addEventListener('change', () => applySearchState({
+        query: searchInput.value,
+        tag: tagFilter.value,
+        duration: durationFilter?.value,
+    }, 'replace'));
+    durationFilter?.addEventListener('change', () => applySearchState({
+        query: searchInput.value,
+        tag: tagFilter?.value,
+        duration: durationFilter.value,
+    }, 'replace'));
+
+    dialog.addEventListener('keydown', (event) => {
+        if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+        const links = [...searchResults.querySelectorAll('a')];
+        if (links.length === 0) return;
+        event.preventDefault();
+        const current = links.indexOf(document.activeElement);
+        const next = event.key === 'ArrowDown'
+            ? (current + 1) % links.length
+            : (current <= 0 ? links.length - 1 : current - 1);
+        links[next].focus();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
+            event.preventDefault();
+            openSearch();
+        }
+    });
+    window.addEventListener('popstate', () => {
+        const state = utils.parseSearchState(window.location.search);
+        if (state.query || state.tag || state.duration) {
+            openSearch();
+            applySearchState(state);
+        } else {
+            closeSearchWithoutReset();
+        }
+    });
+
+    async function initializeSearch() {
+        showIdle();
+        try {
+            const response = await fetch(`/index.json?h=${encodeURIComponent(window.RECIPE_HASH || 'dev')}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            recipes = await response.json();
+            fuse = new Fuse(recipes, {
+                keys: [
+                    { name: 'title', weight: 2 },
+                    { name: 'aka', weight: 1.8 },
+                    { name: 'description', weight: 1.5 },
+                    { name: 'tags', weight: 1 },
+                    { name: 'content', weight: 0.7 },
+                ],
+                includeScore: true,
+                threshold: 0.3,
+                distance: 100,
+                ignoreLocation: true,
+                ignoreFieldNorm: true,
+                useExtendedSearch: false,
+                minMatchCharLength: 2,
+            });
+
+            const tags = [...new Set(recipes.flatMap((recipe) => recipe.tags || []))].sort((a, b) => a.localeCompare(b, 'de'));
+            tags.forEach((tag) => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                tagFilter?.append(option);
+            });
+            searchControls?.classList.remove('hidden');
+            durationControl?.classList.toggle('hidden', !utils.durationFilterAvailable(recipes));
+
+            const initialState = utils.parseSearchState(window.location.search);
+            if (initialState.query || initialState.tag || initialState.duration || document.querySelector('[data-search-autostart]')) {
+                openSearch();
+                applySearchState(initialState);
+            } else {
+                showIdle();
+            }
+        } catch (error) {
+            console.error('Error loading search index:', error);
+            searchIdle.classList.remove('hidden');
+            searchIdle.querySelector('p').textContent = 'Die Suche konnte nicht geladen werden.';
+            searchIdle.querySelector('small').textContent = 'Bitte lade die Seite erneut.';
+            searchStatus.textContent = 'Suchindex nicht verfügbar.';
+        }
+    }
+
+    initializeSearch();
 });

@@ -1,54 +1,44 @@
-let lastScrollTop = 0;
-let lastScrollTime = Date.now();
-let lastShowTime = 0;
-const navbar = document.querySelector('header');
-const SCROLL_THRESHOLD = 100; // Basis-Schwellenwert
-const VELOCITY_THRESHOLD = 50; // Pixel pro 100ms für "schnelles" Scrollen
-const STICKY_DURATION = 1000; // Navbar bleibt mindestens 1 Sekunde sichtbar
-let scrollDirection = 'none';
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('.site-header');
+    const menuButton = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    if (!header || !menuButton || !menu) return;
 
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    const currentTime = Date.now();
-    const timeDiff = currentTime - lastScrollTime;
-    const scrollDiff = Math.abs(currentScroll - lastScrollTop);
-    
-    // Berechne Scroll-Geschwindigkeit (Pixel pro 100ms)
-    const velocity = (scrollDiff / timeDiff) * 100;
-    
-    // Dynamischer Schwellenwert basierend auf Geschwindigkeit
-    const dynamicThreshold = velocity > VELOCITY_THRESHOLD ? 
-        SCROLL_THRESHOLD * 0.3 : // Bei schnellem Scrollen: reduzierter Schwellenwert
-        SCROLL_THRESHOLD;        // Bei langsamem Scrollen: normaler Schwellenwert
-    
-    // Prüfe, ob die Sticky-Duration noch aktiv ist
-    const isSticky = (currentTime - lastShowTime) < STICKY_DURATION;
-    
-    // Immer anzeigen, wenn ganz oben
-    if (currentScroll <= 0) {
-        scrollDirection = 'up';
-        navbar.style.transform = 'translateY(0)';
-        navbar.style.transition = 'transform 0.3s ease-in-out';
-        lastShowTime = currentTime;
-    } else if (currentScroll > lastScrollTop && !isSticky) {
-        // Nach unten scrollen (nur wenn nicht sticky und nicht ganz oben)
-        if (scrollDirection !== 'down') {
-            scrollDirection = 'down';
-            navbar.style.transform = 'translateY(-100%)';
-            navbar.style.transition = 'transform 0.3s ease-in-out';
-        }
-    } else if (currentScroll < lastScrollTop) {
-        // Nach oben scrollen
-        if (currentScroll < (lastScrollTop - dynamicThreshold)) {
-            if (scrollDirection !== 'up') {
-                scrollDirection = 'up';
-                navbar.style.transform = 'translateY(0)';
-                navbar.style.transition = 'transform 0.3s ease-in-out';
-                lastShowTime = currentTime;
-            }
-        }
+    let lastScroll = window.scrollY;
+    let ticking = false;
+
+    function setMenu(open) {
+        menu.dataset.open = String(open);
+        menuButton.setAttribute('aria-expanded', String(open));
+        menuButton.querySelector('.sr-only').textContent = open ? 'Navigation schließen' : 'Navigation öffnen';
+        document.body.classList.toggle('menu-open', open);
+        header.classList.remove('is-hidden');
     }
-    
-    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    lastScrollTime = currentTime;
-}); 
+
+    menuButton.addEventListener('click', () => setMenu(menu.dataset.open !== 'true'));
+    menu.addEventListener('click', (event) => {
+        if (event.target.closest('a, [data-search-open]')) setMenu(false);
+    });
+    document.addEventListener('recipe-search-opened', () => setMenu(false));
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && menu.dataset.open === 'true') {
+            setMenu(false);
+            menuButton.focus();
+        }
+    });
+
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+            const current = window.scrollY;
+            const shouldHide = current > 140 && current > lastScroll + 4 && menu.dataset.open !== 'true';
+            const shouldShow = current < lastScroll - 4 || current < 40;
+            if (shouldHide) header.classList.add('is-hidden');
+            if (shouldShow) header.classList.remove('is-hidden');
+            header.classList.toggle('is-scrolled', current > 16);
+            lastScroll = current;
+            ticking = false;
+        });
+    }, { passive: true });
+});
