@@ -22,13 +22,19 @@
         <div class="portion-panel">
             <span class="dashboard-kicker">Menge</span>
             {{ with $servings }}
-            <div class="portion-control print:hidden" aria-label="Portionen anpassen">
-                <button type="button" data-portion-decrease aria-label="Eine Portion weniger">−</button>
-                <output data-portion-current aria-live="polite">{{ . }}</output>
-                <button type="button" data-portion-increase aria-label="Eine Portion mehr">+</button>
+            <div class="portion-control-row print:hidden">
+                <div class="portion-control" aria-label="Portionen anpassen">
+                    <button type="button" data-portion-decrease aria-label="Eine Portion weniger">−</button>
+                    <output data-portion-current aria-live="polite">{{ . }}</output>
+                    <button type="button" data-portion-increase aria-label="Eine Portion mehr">+</button>
+                </div>
+                <button type="button" class="context-reset context-reset-icon" data-portion-reset aria-label="Menge auf {{ $servingOriginal }} zurücksetzen" title="Menge zurücksetzen" hidden>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4v6h6M5.5 15a7 7 0 1 0 1.15-8.3L4 10" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+                    </svg>
+                </button>
             </div>
             <span class="portion-unit">{{ $servingUnit }}</span>
-            <small data-portion-context>Original: {{ $servingOriginal }} · Faktor 1×</small>
             {{ else }}
             <strong class="portion-static">{{ $servingOriginal }}</strong>
             {{ end }}
@@ -50,7 +56,6 @@
             <button type="button" class="cook-mode-launch" data-cook-mode-open>
                 <span aria-hidden="true">▶</span> Kochmodus starten
             </button>
-            <button type="button" class="recipe-reset" data-recipe-reset>Zurücksetzen</button>
         </div>
     </section>
 
@@ -62,6 +67,12 @@
                     <span class="section-kicker">Mise en place</span>
                     <h2 id="ingredients-title">Zutaten</h2>
                 </div>
+                <button type="button" class="context-reset ingredient-reset print:hidden" data-ingredients-reset hidden>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4v6h6M5.5 15a7 7 0 1 0 1.15-8.3L4 10" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+                    </svg>
+                    <span>Zurücksetzen</span>
+                </button>
             </header>
 
             {{ range $groupIndex, $group := .Params.ingredientgroups }}

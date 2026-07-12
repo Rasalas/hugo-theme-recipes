@@ -65,7 +65,8 @@
         const storageKey = `recipe-state:v1:${recipe.dataset.recipeKey}`;
         const baseServings = Number(recipe.dataset.baseServings || 0);
         const portionOutput = recipe.querySelector('[data-portion-current]');
-        const portionContext = recipe.querySelector('[data-portion-context]');
+        const portionReset = recipe.querySelector('[data-portion-reset]');
+        const ingredientsReset = recipe.querySelector('[data-ingredients-reset]');
         const checkboxes = Array.from(recipe.querySelectorAll('[data-ingredient-check]'));
         let state = loadState(storageKey);
         let currentServings = Number(state.servings) > 0 ? Number(state.servings) : baseServings;
@@ -80,6 +81,12 @@
             } catch (error) {
                 // The recipe remains fully usable when storage is unavailable.
             }
+            updateResetControls();
+        }
+
+        function updateResetControls() {
+            if (portionReset) portionReset.hidden = !(baseServings > 0 && currentServings !== baseServings);
+            if (ingredientsReset) ingredientsReset.hidden = !checkboxes.some((checkbox) => checkbox.checked);
         }
 
         const checked = new Set(Array.isArray(state.checked) ? state.checked : []);
@@ -92,10 +99,6 @@
             if (!(baseServings > 0) || !(currentServings > 0)) return;
             const factor = currentServings / baseServings;
             if (portionOutput) portionOutput.textContent = formatNumber(currentServings);
-            if (portionContext) {
-                const original = recipe.dataset.servingOriginal || `${formatNumber(baseServings)} Portionen`;
-                portionContext.textContent = `Original: ${original} · Faktor ${formatNumber(factor)}×`;
-            }
             recipe.querySelectorAll('[data-amount]').forEach((amount) => {
                 amount.textContent = formatScaledAmount(
                     Number(amount.dataset.amount),
@@ -115,6 +118,15 @@
         recipe.querySelector('[data-portion-increase]')?.addEventListener('click', () => {
             currentServings += 1;
             updatePortions();
+            saveState();
+        });
+        portionReset?.addEventListener('click', () => {
+            currentServings = baseServings;
+            updatePortions();
+            saveState();
+        });
+        ingredientsReset?.addEventListener('click', () => {
+            checkboxes.forEach((checkbox) => { checkbox.checked = false; });
             saveState();
         });
 
@@ -184,6 +196,7 @@
         });
 
         const dialog = recipe.querySelector('[data-cook-mode-dialog]');
+        const cookShell = recipe.querySelector('.cook-mode-shell');
         const originalSteps = Array.from(recipe.querySelectorAll('.recipe-steps > [data-cook-step]'));
         const cookContent = recipe.querySelector('[data-cook-mode-content]');
         const progress = recipe.querySelector('[data-cook-progress]');
@@ -262,37 +275,84 @@
             await global.recipeWakeLock?.release();
         }
 
-        if (dragHandle) {
+        if (dragHandle && cookShell) {
             let dragStartY = 0;
             let dragStartTime = 0;
             let dragDistance = 0;
+            let touchDragActive = false;
 
-            dragHandle.addEventListener('pointerdown', (event) => {
-                if (!mobileCookMode.matches || closing || event.button !== 0) return;
-                dragStartY = event.clientY;
+            const canStartDrag = (target) => !target.closest('button, a, input, textarea, select, [role="button"]');
+
+            const beginDrag = (clientY) => {
+                if (!mobileCookMode.matches || closing) return false;
+                dragStartY = clientY;
                 dragStartTime = performance.now();
                 dragDistance = 0;
                 dialog.classList.add('is-dragging');
-                dragHandle.setPointerCapture(event.pointerId);
-            });
+                return true;
+            };
 
-            global.addEventListener('pointermove', (event) => {
-                if (!dialog.classList.contains('is-dragging')) return;
-                dragDistance = Math.max(0, event.clientY - dragStartY);
+            const updateDrag = (clientY) => {
+                if (!dialog.classList.contains('is-dragging')) return false;
+                dragDistance = Math.max(0, clientY - dragStartY);
                 dialog.style.setProperty('--sheet-translate-y', `${dragDistance}px`);
-            });
+                return dragDistance > 0;
+            };
 
-            const finishDrag = (event) => {
+            const finishDrag = () => {
                 if (!dialog.classList.contains('is-dragging')) return;
-                if (dragHandle.hasPointerCapture(event.pointerId)) dragHandle.releasePointerCapture(event.pointerId);
                 dialog.classList.remove('is-dragging');
                 const elapsed = Math.max(1, performance.now() - dragStartTime);
                 if (shouldDismissSheet(dragDistance, elapsed)) closeCookMode();
                 else dialog.style.setProperty('--sheet-translate-y', '0px');
             };
 
+            const cancelDrag = () => {
+                if (!dialog.classList.contains('is-dragging')) return;
+                dialog.classList.remove('is-dragging');
+                dialog.style.setProperty('--sheet-translate-y', '0px');
+            };
+
+            cookShell.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'touch' || event.button !== 0 || !canStartDrag(event.target)) return;
+                beginDrag(event.clientY);
+            });
+
+            global.addEventListener('pointermove', (event) => {
+                updateDrag(event.clientY);
+            });
+
             global.addEventListener('pointerup', finishDrag);
-            global.addEventListener('pointercancel', finishDrag);
+            global.addEventListener('pointercancel', cancelDrag);
+
+            cookShell.addEventListener('touchstart', (event) => {
+                if (event.touches.length !== 1 || !canStartDrag(event.target)) return;
+                const startedInContent = event.target.closest('.cook-mode-content');
+                if (startedInContent && cookContent.scrollTop > 0) return;
+                touchDragActive = beginDrag(event.touches[0].clientY);
+            }, { passive: true });
+
+            cookShell.addEventListener('touchmove', (event) => {
+                if (!touchDragActive || event.touches.length !== 1) return;
+                const movement = event.touches[0].clientY - dragStartY;
+                if (movement <= 0) {
+                    touchDragActive = false;
+                    cancelDrag();
+                    return;
+                }
+                event.preventDefault();
+                updateDrag(event.touches[0].clientY);
+            }, { passive: false });
+
+            cookShell.addEventListener('touchend', () => {
+                if (!touchDragActive) return;
+                touchDragActive = false;
+                finishDrag();
+            });
+            cookShell.addEventListener('touchcancel', () => {
+                touchDragActive = false;
+                cancelDrag();
+            });
         }
 
         recipe.querySelector('[data-cook-mode-open]')?.addEventListener('click', openCookMode);
@@ -318,17 +378,8 @@
             if (document.visibilityState === 'visible' && dialogIsOpen()) global.recipeWakeLock?.acquire();
         });
 
-        recipe.querySelector('[data-recipe-reset]')?.addEventListener('click', () => {
-            try { localStorage.removeItem(storageKey); } catch (error) { /* no-op */ }
-            checkboxes.forEach((checkbox) => { checkbox.checked = false; });
-            currentServings = baseServings;
-            Array.from(timerDefaults.keys()).forEach(resetTimer);
-            updatePortions();
-            closeCookMode();
-            saveState();
-        });
-
         updatePortions();
+        updateResetControls();
     }
 
     function loadState(key) {
