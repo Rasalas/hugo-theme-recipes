@@ -13,5 +13,9 @@
 
 <script>
   // Recipe hash that changes when recipes are updated
-  window.RECIPE_HASH = "{{ now.Unix }}";
+  {{- $versions := slice -}}
+  {{- range where site.RegularPages "Section" "recipe" -}}
+    {{- $versions = $versions | append (printf "%s:%d" .RelPermalink .Lastmod.Unix) -}}
+  {{- end -}}
+  window.RECIPE_HASH = "{{ delimit $versions "|" | md5 }}";
 </script>

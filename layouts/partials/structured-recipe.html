@@ -51,6 +51,17 @@
             {{ with .Params.cooktimeminutes }}
             <div><span>Garzeit</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.cooktimemaxminutes) }}</strong></div>
             {{ end }}
+            {{ with .Params.nutrition }}
+            <div>
+                <span>Nährwerte {{ if eq .basis "per100g" }}pro 100 g{{ else }}{{ with .basisText }}({{ . }}){{ else }}pro Portion{{ end }}{{ end }}</span>
+                <strong>
+                    {{- with .caloriesKcal }}{{ . }} kcal{{ end -}}
+                    {{- with .proteinGrams }} · {{ . }} g Eiweiß{{ end -}}
+                    {{- with .carbohydratesGrams }} · {{ . }} g KH{{ end -}}
+                    {{- with .fatGrams }} · {{ . }} g Fett{{ end -}}
+                </strong>
+            </div>
+            {{ end }}
         </div>
         <div class="recipe-actions print:hidden">
             <button type="button" class="cook-mode-launch" data-cook-mode-open>

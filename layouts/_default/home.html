@@ -14,6 +14,7 @@
 
             <!-- Suchergebnisse -->
             <div class="container mx-auto px-4">
+                {{ partial "search-controls.html" . }}
                 <div id="no-results" class="hidden text-center mb-8">
                     <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
                     <button onclick="window.showAllRecipes()" 
@@ -39,6 +40,6 @@
 {{ partial "search-result-template.html" . }}
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="/js/search-utils.js?v=1"></script>
-<script src="/js/search.js?v=2"></script>
+<script src="/js/search-utils.js?v=2"></script>
+<script src="/js/search.js?v=3"></script>
 {{ end }}
