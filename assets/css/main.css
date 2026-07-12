@@ -244,6 +244,31 @@
 .recipe-index-item:hover .recipe-index-arrow,
 .recipe-index-item:focus-visible .recipe-index-arrow { transform: translate(.18rem, -.18rem); }
 
+.to-top-button {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 50;
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+    border: 1px solid var(--site-line);
+    border-radius: 50%;
+    background: var(--site-paper);
+    color: var(--site-ink);
+    place-items: center;
+    box-shadow: 0 .8rem 2rem var(--site-shadow);
+    cursor: pointer;
+    transition: opacity .25s ease, transform .2s ease, background .2s ease, color .2s ease;
+}
+
+.to-top-button svg { width: 1.3rem; height: 1.3rem; }
+.to-top-button.opacity-100 { opacity: 1; }
+.to-top-button:hover { background: #d6a65f; color: #211a13; transform: translateY(-2px); }
+.to-top-button:focus-visible { outline: 2px solid #d6a65f; outline-offset: 3px; }
+.to-top-button:active { transform: translateY(0) scale(.96); }
+
 @media (max-width: 900px) {
     .recipe-index { grid-template-columns: 1fr; }
 }
@@ -260,26 +285,34 @@
     .recipe-index-copy > p { margin-top: .35rem; font-size: .74rem; -webkit-line-clamp: 2; }
     .recipe-index-tags { display: none; }
     .recipe-index-arrow { font-size: .9rem; }
+    .to-top-button { right: 1rem; bottom: 1rem; width: 3rem; height: 3rem; }
 }
 
-/* Wake Lock Button Styles */
-#wakeLockButton.active {
-    @apply bg-yellow-50 dark:bg-yellow-900/30;
+.wake-lock-fab {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 40;
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: 1px solid var(--site-line);
+    border-radius: 50%;
+    place-items: center;
+    background: var(--site-paper);
+    color: var(--site-ink);
+    box-shadow: 0 .8rem 2rem var(--site-shadow);
+    cursor: pointer;
+    transition: transform .2s ease, background .2s ease, color .2s ease;
 }
 
-#wakeLockButton.active #wakeLockIcon {
-    @apply text-yellow-500 dark:text-yellow-400;
-}
-
-/* Add a subtle scale effect on hover */
-#wakeLockButton:hover {
-    transform: scale(1.05);
-}
-
-/* Add a press effect */
-#wakeLockButton:active {
-    transform: scale(0.95);
-}
+.wake-lock-fab:hover,
+.wake-lock-fab:focus-visible { transform: translateY(-2px); }
+.wake-lock-fab:active { transform: translateY(0) scale(.96); }
+.wake-lock-fab.active,
+.wake-lock-toggle.active { background: #d6a65f; color: #211a13; }
+.wake-lock-icon { width: 1.5rem; height: 1.5rem; }
 
 /* Structured recipe: warm editorial kitchen journal */
 .structured-recipe {
@@ -444,6 +477,11 @@
     cursor: pointer;
 }
 
+.cook-mode-dialog button:focus-visible {
+    outline: 2px solid var(--recipe-accent);
+    outline-offset: 3px;
+}
+
 .cook-mode-launch {
     border-color: var(--recipe-accent);
     background: var(--recipe-accent);
@@ -592,8 +630,9 @@
 }
 
 .cook-mode-dialog {
-    width: min(46rem, calc(100vw - 1.5rem));
-    max-height: calc(100dvh - 1.5rem);
+    width: min(72rem, calc(100vw - 3rem));
+    max-width: none;
+    max-height: calc(100dvh - 3rem);
     padding: 0;
     border: 0;
     border-radius: 1.25rem .35rem 1.25rem .35rem;
@@ -603,18 +642,51 @@
 }
 
 .cook-mode-dialog::backdrop { background: rgba(28, 24, 20, .78); backdrop-filter: blur(5px); }
-.cook-mode-shell { display: grid; min-height: min(38rem, calc(100dvh - 1.5rem)); padding: clamp(1.1rem, 4vw, 2rem); }
+.cook-mode-dialog.is-closing::backdrop { background: transparent; backdrop-filter: blur(0); }
+.cook-mode-shell { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; min-height: min(48rem, calc(100dvh - 3rem)); padding: clamp(2rem, 4vw, 3.5rem); }
+.cook-mode-drag-handle { display: none; }
 .cook-mode-shell > header { display: flex; justify-content: space-between; align-items: flex-start; }
-.cook-mode-shell h2 { margin: .2rem 0 0; font-size: 2rem; }
-.cook-mode-close { width: 2.6rem; height: 2.6rem; padding: 0; background: transparent; color: var(--recipe-ink); font-size: 1.5rem; }
-.cook-mode-progress { margin: 1.2rem 0; color: var(--recipe-muted); font: 700 .78rem/1 ui-sans-serif, system-ui, sans-serif; }
+.cook-mode-shell h2 { margin: .2rem 0 0; font-size: clamp(2.75rem, 5vw, 4.5rem); line-height: .95; }
+.cook-mode-header-actions { display: flex; align-items: center; gap: .65rem; }
+.cook-mode-dialog .wake-lock-toggle,
+.cook-mode-dialog .cook-mode-close {
+    display: grid;
+    flex: 0 0 2.75rem;
+    box-sizing: border-box;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border-color: var(--recipe-line);
+    background: transparent;
+    color: var(--recipe-ink);
+    line-height: 0;
+    align-items: center;
+    justify-items: center;
+    place-items: center;
+}
+.wake-lock-toggle:focus-visible,
+.cook-mode-close:focus-visible { outline: 2px solid var(--recipe-accent); outline-offset: 3px; }
+.cook-mode-shell h2:focus { outline: none; }
+.wake-lock-toggle .wake-lock-icon { display: block; width: 1.3rem; height: 1.3rem; }
+.cook-mode-dialog .wake-lock-toggle.active {
+    border-color: #d6a65f;
+    background: #d6a65f;
+    color: #211a13;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #d6a65f 24%, transparent);
+}
+.cook-mode-close svg { display: block; width: 1.2rem; height: 1.2rem; }
+.cook-mode-progress { margin: 1.5rem 0; color: var(--recipe-muted); font: 700 .9rem/1 ui-sans-serif, system-ui, sans-serif; }
 .cook-mode-progress > div { height: .25rem; margin-top: .55rem; overflow: hidden; border-radius: 999px; background: var(--recipe-line); }
 .cook-mode-progress i { display: block; width: 0; height: 100%; background: var(--recipe-accent); transition: width .25s ease; }
-.cook-mode-content { align-self: center; }
-.cook-mode-content .recipe-step { border: 0; background: transparent; font-size: 1.15rem; }
-.cook-mode-shell > footer { display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem; align-self: end; margin-top: 1.5rem; }
-.cook-mode-shell > footer button { background: transparent; color: var(--recipe-ink); }
-.cook-mode-shell > footer button:last-child { justify-self: end; border-color: var(--recipe-accent); background: var(--recipe-accent); color: var(--recipe-accent-contrast); }
+.cook-mode-content { align-self: center; overflow-y: auto; }
+.cook-mode-content .recipe-step { border: 0; background: transparent; font-size: 1.35rem; }
+.cook-mode-content .recipe-step p { font-size: clamp(1.35rem, 2.2vw, 1.85rem); line-height: 1.55; }
+.cook-mode-content .step-index { font-size: 1.7rem; }
+.cook-mode-content .step-group { font-size: .8rem; }
+.cook-mode-content .step-timers button { font-size: .95rem; }
+.cook-mode-shell > footer { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-self: end; margin-top: 1.5rem; }
+.cook-mode-shell > footer button { min-height: 3.5rem; background: transparent; color: var(--recipe-ink); }
+.cook-mode-shell > footer button:last-child { justify-self: stretch; border-color: var(--recipe-accent); background: var(--recipe-accent); color: var(--recipe-accent-contrast); }
 .cook-mode-shell > footer button:disabled { cursor: not-allowed; opacity: .4; }
 .wake-lock-status { margin: .7rem 0 0; color: var(--recipe-muted); font: .72rem/1.4 ui-sans-serif, system-ui, sans-serif; text-align: center; }
 
@@ -645,12 +717,61 @@
     .time-strip > div { padding-left: 0; }
     .recipe-actions { flex-direction: column; }
     .recipe-actions button { width: 100%; }
-    .cook-mode-shell > footer { grid-template-columns: 1fr 1fr; }
-    .cook-mode-shell > footer [data-wake-lock-toggle] { grid-column: 1 / -1; grid-row: 2; }
+    .cook-mode-dialog {
+        --sheet-translate-y: 0px;
+        inset: auto 0 0;
+        width: 100%;
+        max-height: 92dvh;
+        margin: 0;
+        border-radius: 2rem 2rem 0 0;
+        transform: translateY(var(--sheet-translate-y));
+        transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+    }
+    .cook-mode-dialog.is-dragging { transition: none; }
+    .cook-mode-shell {
+        grid-template-rows: auto auto auto auto auto;
+        min-height: 0;
+        max-height: 92dvh;
+        padding: 1.35rem 1rem max(1rem, env(safe-area-inset-bottom));
+    }
+    .cook-mode-drag-handle {
+        display: grid;
+        width: 100%;
+        height: 1.4rem;
+        margin: -.55rem 0 .15rem;
+        place-items: center;
+        cursor: grab;
+        touch-action: none;
+    }
+    .cook-mode-drag-handle:active { cursor: grabbing; }
+    .cook-mode-drag-handle i {
+        display: block;
+        width: 2.75rem;
+        height: .28rem;
+        border-radius: 999px;
+        background: var(--recipe-line);
+    }
+    .cook-mode-shell > header { grid-row: 2; }
+    .cook-mode-progress { grid-row: 3; margin: 1rem 0; }
+    .cook-mode-content { grid-row: 4; max-height: calc(92dvh - 17rem); }
+    .cook-mode-shell > footer { grid-row: 5; gap: .65rem; margin-top: 1rem; }
+    .cook-mode-shell h2 { font-size: 2.2rem; }
+    .cook-mode-content .recipe-step { grid-template-columns: 2.15rem minmax(0, 1fr); gap: .55rem; padding: .5rem 0; }
+    .cook-mode-content .recipe-step p { font-size: 1.22rem; line-height: 1.5; }
+    .cook-mode-content .step-index { font-size: 1.25rem; }
+    .cook-mode-shell > footer button {
+        min-height: 4.75rem;
+        padding: .8rem 1rem;
+        border-radius: 1.6rem .65rem 1.6rem .65rem;
+        font-size: 1rem;
+    }
+    .cook-mode-shell > footer button:last-child { border-radius: .65rem 1.6rem .65rem 1.6rem; }
+    .wake-lock-fab { right: 1rem; bottom: 1rem; width: 3.25rem; height: 3.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .cook-mode-progress i { transition: none; }
+    .cook-mode-dialog { transition: none; }
 }
 
 @media print {

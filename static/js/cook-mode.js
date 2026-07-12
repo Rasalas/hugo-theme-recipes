@@ -48,7 +48,13 @@
             : `${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`;
     }
 
-    const api = { formatNumber, formatScaledAmount, formatTimer };
+    function shouldDismissSheet(distance, elapsedMilliseconds) {
+        const safeDistance = Math.max(0, Number(distance) || 0);
+        const safeElapsed = Math.max(1, Number(elapsedMilliseconds) || 0);
+        return safeDistance >= 96 || safeDistance / safeElapsed >= .6;
+    }
+
+    const api = { formatNumber, formatScaledAmount, formatTimer, shouldDismissSheet };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     if (typeof document === 'undefined') return;
 
@@ -184,7 +190,11 @@
         const progressBar = recipe.querySelector('[data-cook-progress-bar]');
         const previous = recipe.querySelector('[data-cook-previous]');
         const next = recipe.querySelector('[data-cook-next]');
+        const dragHandle = recipe.querySelector('[data-cook-mode-drag-handle]');
+        const mobileCookMode = global.matchMedia('(max-width: 760px)');
+        const reducedMotion = global.matchMedia('(prefers-reduced-motion: reduce)');
         let currentStep = 0;
+        let closing = false;
 
         function dialogIsOpen() {
             return dialog?.open || dialog?.hasAttribute('open');
@@ -214,17 +224,75 @@
             if (!dialog || originalSteps.length === 0) return;
             currentStep = 0;
             renderCookStep();
+            if (mobileCookMode.matches && !reducedMotion.matches) {
+                dialog.style.setProperty('--sheet-translate-y', '100%');
+            }
             if (typeof dialog.showModal === 'function') dialog.showModal();
             else dialog.setAttribute('open', '');
+            if (mobileCookMode.matches && !reducedMotion.matches) {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    dialog.style.setProperty('--sheet-translate-y', '0px');
+                }));
+            }
             await global.recipeWakeLock?.acquire();
-            dialog.querySelector('[data-cook-mode-close]')?.focus();
+            dialog.querySelector('#cook-mode-title')?.focus();
         }
 
         async function closeCookMode() {
-            if (!dialog) return;
+            if (!dialog || closing || !dialogIsOpen()) return;
+            closing = true;
+            if (mobileCookMode.matches && !reducedMotion.matches) {
+                dialog.classList.remove('is-dragging');
+                dialog.classList.add('is-closing');
+                dialog.style.setProperty('--sheet-translate-y', '100%');
+                await new Promise((resolve) => {
+                    const timeout = setTimeout(resolve, 320);
+                    dialog.addEventListener('transitionend', (event) => {
+                        if (event.propertyName !== 'transform') return;
+                        clearTimeout(timeout);
+                        resolve();
+                    }, { once: true });
+                });
+            }
             if (typeof dialog.close === 'function' && dialog.open) dialog.close();
             else dialog.removeAttribute('open');
+            dialog.classList.remove('is-closing', 'is-dragging');
+            dialog.style.removeProperty('--sheet-translate-y');
+            closing = false;
             await global.recipeWakeLock?.release();
+        }
+
+        if (dragHandle) {
+            let dragStartY = 0;
+            let dragStartTime = 0;
+            let dragDistance = 0;
+
+            dragHandle.addEventListener('pointerdown', (event) => {
+                if (!mobileCookMode.matches || closing || event.button !== 0) return;
+                dragStartY = event.clientY;
+                dragStartTime = performance.now();
+                dragDistance = 0;
+                dialog.classList.add('is-dragging');
+                dragHandle.setPointerCapture(event.pointerId);
+            });
+
+            global.addEventListener('pointermove', (event) => {
+                if (!dialog.classList.contains('is-dragging')) return;
+                dragDistance = Math.max(0, event.clientY - dragStartY);
+                dialog.style.setProperty('--sheet-translate-y', `${dragDistance}px`);
+            });
+
+            const finishDrag = (event) => {
+                if (!dialog.classList.contains('is-dragging')) return;
+                if (dragHandle.hasPointerCapture(event.pointerId)) dragHandle.releasePointerCapture(event.pointerId);
+                dialog.classList.remove('is-dragging');
+                const elapsed = Math.max(1, performance.now() - dragStartTime);
+                if (shouldDismissSheet(dragDistance, elapsed)) closeCookMode();
+                else dialog.style.setProperty('--sheet-translate-y', '0px');
+            };
+
+            global.addEventListener('pointerup', finishDrag);
+            global.addEventListener('pointercancel', finishDrag);
         }
 
         recipe.querySelector('[data-cook-mode-open]')?.addEventListener('click', openCookMode);
@@ -244,6 +312,7 @@
             event.preventDefault();
             closeCookMode();
         });
+        dialog?.addEventListener('close', () => global.recipeWakeLock?.release());
         recipe.querySelector('[data-wake-lock-toggle]')?.addEventListener('click', () => global.recipeWakeLock?.toggle());
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && dialogIsOpen()) global.recipeWakeLock?.acquire();

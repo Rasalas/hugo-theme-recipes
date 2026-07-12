@@ -8,10 +8,14 @@
         if (legacyButton) {
             legacyButton.setAttribute('aria-pressed', active ? 'true' : 'false');
             legacyButton.classList.toggle('active', active);
+            legacyButton.setAttribute('aria-label', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
+            legacyButton.setAttribute('title', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
         }
         document.querySelectorAll('[data-wake-lock-toggle]').forEach((button) => {
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
-            button.textContent = active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen';
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-label', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
+            button.setAttribute('title', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
         });
         document.querySelectorAll('[data-wake-lock-status]').forEach((status) => {
             status.textContent = lastError || (active

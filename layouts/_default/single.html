@@ -83,17 +83,15 @@
     </article>
 </div>
 
-{{ if not $isStructured }}
-<!-- Floating Action Button for Wake Lock (Legacy-Rezepte) -->
 <button id="wakeLockButton"
+        type="button"
         onclick="toggleWakeLock()"
         aria-pressed="false"
-        class="fixed bottom-6 right-6 p-4 rounded-full shadow-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 print:hidden z-50 transition-all duration-200 ease-in-out">
-    <svg id="wakeLockIcon" class="w-6 h-6 transition-colors duration-200 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-    </svg>
+        aria-label="Bildschirm anlassen"
+        title="Bildschirm anlassen"
+        class="wake-lock-fab print:hidden">
+    {{ partial "wake-lock-icon.html" . }}
 </button>
-{{ end }}
 
 <style>
 /* Content Styles */

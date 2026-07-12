@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { formatNumber, formatScaledAmount, formatTimer } = require('../static/js/cook-mode.js');
+const { formatNumber, formatScaledAmount, formatTimer, shouldDismissSheet } = require('../static/js/cook-mode.js');
 
 test('formatNumber keeps useful kitchen fractions', () => {
     assert.equal(formatNumber(0.5), '1/2');
@@ -25,4 +25,11 @@ test('formatScaledAmount preserves qualifiers and family wording', () => {
 test('formatTimer supports minute and hour durations', () => {
     assert.equal(formatTimer(65), '01:05');
     assert.equal(formatTimer(3661), '1:01:01');
+});
+
+test('bottom sheet dismisses for sufficient distance or velocity', () => {
+    assert.equal(shouldDismissSheet(95, 1000), false);
+    assert.equal(shouldDismissSheet(96, 1000), true);
+    assert.equal(shouldDismissSheet(50, 100), false);
+    assert.equal(shouldDismissSheet(61, 100), true);
 });

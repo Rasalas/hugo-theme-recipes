@@ -185,12 +185,22 @@
 
     <dialog class="cook-mode-dialog print:hidden" data-cook-mode-dialog aria-labelledby="cook-mode-title">
         <div class="cook-mode-shell">
+            <div class="cook-mode-drag-handle" data-cook-mode-drag-handle aria-hidden="true"><i></i></div>
             <header>
                 <div>
                     <span class="section-kicker">Fokusansicht</span>
-                    <h2 id="cook-mode-title">Kochmodus</h2>
+                    <h2 id="cook-mode-title" tabindex="-1">Kochmodus</h2>
                 </div>
-                <button type="button" class="cook-mode-close" data-cook-mode-close aria-label="Kochmodus schließen">×</button>
+                <div class="cook-mode-header-actions">
+                    <button type="button" class="wake-lock-toggle" data-wake-lock-toggle aria-label="Bildschirm anlassen" title="Bildschirm anlassen">
+                        {{ partial "wake-lock-icon.html" . }}
+                    </button>
+                    <button type="button" class="cook-mode-close" data-cook-mode-close aria-label="Kochmodus schließen">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" stroke-width="2.4"/>
+                        </svg>
+                    </button>
+                </div>
             </header>
             <div class="cook-mode-progress">
                 <span data-cook-progress>Schritt 1</span>
@@ -199,10 +209,9 @@
             <div class="cook-mode-content" data-cook-mode-content></div>
             <footer>
                 <button type="button" data-cook-previous>← Zurück</button>
-                <button type="button" data-wake-lock-toggle>Bildschirm anlassen</button>
                 <button type="button" data-cook-next>Weiter →</button>
             </footer>
-            <p class="wake-lock-status" data-wake-lock-status aria-live="polite">Bildschirm-Wachmodus ist aus.</p>
+            <p class="wake-lock-status sr-only" data-wake-lock-status aria-live="polite">Bildschirm-Wachmodus ist aus.</p>
         </div>
     </dialog>
 </div>
