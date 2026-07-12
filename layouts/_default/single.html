@@ -3,13 +3,13 @@
 <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20">
     <article class="prose prose-neutral lg:prose-lg dark:prose-invert max-w-none">
         {{ if .Params.image }}
-        <div class="not-prose print:hidden">
+        <div class="recipe-hero not-prose print:hidden">
             {{ partial "optimized-image.html" (dict "image" .Params.image "alt" .Title "class" "featured-image" "isDetail" true) }}
         </div>
         {{ end }}
 
-        <div class="mb-8">
-            <h1 class="!mt-0 !mb-0">{{ .Title }}</h1>
+        <div class="recipe-title-wrap mb-8">
+            <h1 class="recipe-title !mt-0 !mb-0">{{ .Title }}</h1>
         </div>
 
         {{ if $isStructured }}
@@ -21,11 +21,11 @@
         {{ end }}
         
         {{ if .Params.gallery }}
-        <div class="mt-12 not-prose print:hidden">
-            <h2 class="text-2xl font-bold mb-4 text-neutral-900 dark:text-white">Galerie</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="recipe-gallery mt-12 not-prose print:hidden">
+            <h2 class="recipe-gallery-title">Galerie</h2>
+            <div class="recipe-gallery-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ range .Params.gallery }}
-                <div class="aspect-video w-full overflow-hidden rounded-lg">
+                <div class="recipe-gallery-frame aspect-video w-full overflow-hidden">
                     {{ partial "optimized-image.html" (dict "image" . "alt" $.Title "class" "gallery-image" "isDetail" true) }}
                 </div>
                 {{ end }}

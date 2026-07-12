@@ -1,39 +1,26 @@
 {{ $recipe := . }}
-<a href="{{ .RelPermalink }}" class="group block overflow-hidden rounded-lg bg-white dark:bg-neutral shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+<a href="{{ .RelPermalink }}" class="recipe-index-item group">
+    <div class="recipe-index-media">
     {{ if .Params.image }}
     {{ partial "optimized-image.html" (dict "image" .Params.image "alt" .Title "class" "recipe-card-image") }}
     {{ else if .Title }}
-        <div class="aspect-video w-full bg-neutral-800 dark:bg-neutral-900 overflow-hidden relative">
-            <div class="absolute inset-0 flex flex-wrap content-start overflow-hidden opacity-20 -mt-12 -mb-8">
-                {{ $cleanTitle := upper (replaceRE "[^\\p{L}0-9 ]" "" .Title) }}
-                {{ $cleanTitle := replaceRE "\\s+" " " $cleanTitle }}
-                {{ $cleanTitle := replace $cleanTitle "ß" "ẞ" }}
-                {{ $repeatedTitle := "" }}
-                {{ range seq 30 }}
-                    {{ $repeatedTitle = printf "%s %s" $repeatedTitle $cleanTitle }}
-                {{ end }}
-                {{ range $index, $_ := seq 12 }}
-                    {{ $offset := sub (mul $index 4) 36 }}
-                    <div class="w-full whitespace-nowrap text-2xl font-bold font-mono text-white" style="transform:translateX({{ $offset }}rem)">
-                        {{ $repeatedTitle }}
-                    </div>
-                {{ end }}
-            </div>
+        <div class="recipe-index-placeholder" aria-hidden="true">
+            <span>{{ upper (substr .Title 0 1) }}</span>
         </div>
     {{ end }}
-    <div class="p-4 flex-grow">
-        <h2 class="text-xl font-semibold mb-2 text-neutral-700 dark:text-white group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-            {{ .Title }}
-        </h2>
+    </div>
+    <div class="recipe-index-copy">
+        <h2>{{ .Title }}</h2>
         {{ if .Params.description }}
-        <p class="text-neutral-600 dark:text-neutral-300 text-sm mb-3 line-clamp-2">{{ .Params.description }}</p>
+        <p>{{ .Params.description }}</p>
         {{ end }}
         {{ with .GetTerms "tags" }}
-        <div class="flex flex-wrap gap-2 mt-auto">
+        <div class="recipe-index-tags">
             {{ range . }}
                 {{ partial "tag-badge.html" . }}
             {{ end }}
         </div>
         {{ end }}
     </div>
-</a> 
+    <span class="recipe-index-arrow" aria-hidden="true">↗</span>
+</a>

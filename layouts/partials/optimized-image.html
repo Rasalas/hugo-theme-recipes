@@ -16,7 +16,7 @@
 {{ $galleryPath := replace $imagePath "images/recipes/" "_gen/images/recipes/gallery/" }}
 {{ $detailPath := replace $imagePath "images/recipes/" "_gen/images/recipes/detail/" }}
 
-<div class="image-wrapper {{ $class }} {{ if eq $class "featured-image" }}mb-8{{ end }}">
+<div class="image-wrapper {{ $class }}">
     {{ if and (or (eq $class "gallery-image") (eq $class "featured-image")) $isDetail }}
     <a href="/{{ $imagePath }}" target="_blank" class="block">
     {{ end }}
@@ -27,9 +27,9 @@
                 class="w-full h-full object-cover {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
                 {{ if not $isDetail }}loading="lazy"{{ end }}>
         {{ else if eq $class "featured-image" }}
-            <img src="/{{ $detailPath }}" 
+            <img src="/{{ $detailPath }}?v=2" 
                 alt="{{ $alt }}" 
-                class="w-full h-full object-cover {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
+                class="w-full h-auto object-contain {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
                 {{ if not $isDetail }}loading="lazy"{{ end }}>
         {{ else if eq $class "gallery-image" }}
             <img src="/{{ $galleryPath }}" 

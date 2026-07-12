@@ -2,6 +2,11 @@
 <div class="min-h-screen bg-base-200">
     <div class="pt-20 md:pt-12 pb-4 px-4">
         <div class="max-w-7xl mx-auto">
+            <header class="recipe-index-header">
+                <span>Familienküche von A–Z</span>
+                <h1>Alle Rezepte</h1>
+                <p>{{ len (where .Site.RegularPages "Section" "recipe") }} Rezepte zum Wiederfinden, Nachkochen und Weitergeben.</p>
+            </header>
             <!-- Liste aller Rezepte -->
             <div id="all-recipes">
                 {{ partial "recipe-grid.html" (where .Site.RegularPages "Section" "recipe") }}
@@ -16,7 +21,7 @@
                         Alle Rezepte anzeigen
                     </button>
                 </div>
-                <div id="search-results" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="search-results" class="recipe-index hidden">
                     <!-- Suchergebnisse werden hier dynamisch eingefügt -->
                 </div>
             </div>

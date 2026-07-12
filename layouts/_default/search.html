@@ -3,6 +3,10 @@
     <div class="pt-16 md:pt-8 pb-4 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="container mx-auto px-4">
+                <header class="recipe-index-header">
+                    <span>Rezeptsuche</span>
+                    <h1>Was möchtest du kochen?</h1>
+                </header>
                 <div id="no-results" class="hidden text-center mb-8">
                     <p class="text-neutral-500 dark:text-neutral-400 mb-4">Keine Ergebnisse gefunden.</p>
                     <button onclick="window.showAllRecipes()" 
@@ -11,7 +15,7 @@
                     </button>
                 </div>
                 <!-- Suchergebnisse -->
-                <div id="search-results" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left min-h-[50vh]">
+                <div id="search-results" class="recipe-index hidden min-h-[50vh]">
                     <!-- Suchergebnisse werden hier dynamisch eingefügt -->
                 </div>
 

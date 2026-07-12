@@ -79,14 +79,17 @@
                             {{ with $ingredient.options }}
                             <span class="ingredient-choice-name">{{ $ingredient.name }}</span>
                             <span class="ingredient-options">
-                                {{ range . }}
+                                {{ range $optionIndex, $option := . }}
+                                {{ if gt $optionIndex 0 }}
+                                <span class="ingredient-option-separator">oder</span>
+                                {{ end }}
                                 <span class="ingredient-option">
                                     <span class="ingredient-option-main">
-                                        {{ partial "structured-amount.html" (dict "ingredient" .) }}
-                                        <strong>{{ .name }}</strong>
-                                        {{ if .preferred }}<em>bevorzugt</em>{{ end }}
+                                        {{ partial "structured-amount.html" (dict "ingredient" $option) }}
+                                        <strong>{{ $option.name }}</strong>
+                                        {{ if $option.preferred }}<em>bevorzugt</em>{{ end }}
                                     </span>
-                                    {{ with .note }}<small>{{ . }}</small>{{ end }}
+                                    {{ with $option.note }}<small>{{ . }}</small>{{ end }}
                                 </span>
                                 {{ end }}
                             </span>
