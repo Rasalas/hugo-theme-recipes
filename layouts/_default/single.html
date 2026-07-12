@@ -25,7 +25,7 @@
             <h2 class="recipe-gallery-title">Galerie</h2>
             <div class="recipe-gallery-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ range .Params.gallery }}
-                <div class="recipe-gallery-frame aspect-video w-full overflow-hidden">
+                <div class="recipe-gallery-frame w-full overflow-hidden">
                     {{ partial "optimized-image.html" (dict "image" . "alt" $.Title "class" "gallery-image" "isDetail" true) }}
                 </div>
                 {{ end }}

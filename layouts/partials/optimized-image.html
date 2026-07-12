@@ -1,44 +1,61 @@
-{{ $image := .image }}
-{{ $alt := .alt }}
-{{ $class := .class }}
-{{ $isDetail := .isDetail | default false }}
+{{ $imagePath := strings.TrimPrefix "/" (.image | default "") }}
+{{ $alt := .alt | default "" }}
+{{ $class := .class | default "" }}
 
-{{ if not $image }}
+{{ if not $imagePath }}
     {{ return }}
 {{ end }}
 
-{{ $imagePath := $image }}
-{{ if hasPrefix $imagePath "/" }}
-    {{ $imagePath = substr $imagePath 1 }}
+{{ $original := resources.Get $imagePath }}
+{{ if not $original }}
+    {{ errorf "Recipe image resource not found: %s" $imagePath }}
 {{ end }}
 
-{{ $thumbPath := replace $imagePath "images/recipes/" "_gen/images/recipes/thumbnails/" }}
-{{ $galleryPath := replace $imagePath "images/recipes/" "_gen/images/recipes/gallery/" }}
-{{ $detailPath := replace $imagePath "images/recipes/" "_gen/images/recipes/detail/" }}
+{{ $widths := slice 600 1000 }}
+{{ $sizes := "(min-width: 768px) 50vw, 100vw" }}
+{{ $method := "fill" }}
+{{ $ratioHeight := 3 }}
+{{ $ratioWidth := 4 }}
+{{ $loading := "lazy" }}
 
-<div class="image-wrapper {{ $class }}">
-    {{ if and (or (eq $class "gallery-image") (eq $class "featured-image")) $isDetail }}
-    <a href="/{{ $imagePath }}" target="_blank" class="block">
+{{ if eq $class "recipe-card-image" }}
+    {{ $widths = slice 480 800 }}
+    {{ $sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" }}
+    {{ $ratioHeight = 9 }}
+    {{ $ratioWidth = 16 }}
+{{ else if eq $class "featured-image" }}
+    {{ $widths = slice 960 1600 }}
+    {{ $sizes = "(min-width: 1024px) 896px, 100vw" }}
+    {{ $method = "resize" }}
+    {{ $loading = "eager" }}
+{{ end }}
+
+{{ $images := slice }}
+{{ range $widths }}
+    {{ $width := . }}
+    {{ $image := $original.Fill (printf "%dx%d webp q82" $width (div (mul $width $ratioHeight) $ratioWidth)) }}
+    {{ if eq $method "resize" }}
+        {{ $image = $original.Resize (printf "%dx webp q82" $width) }}
     {{ end }}
-    <picture>
-        {{ if eq $class "recipe-card-image" }}
-            <img src="/{{ $thumbPath }}" 
-                alt="{{ $alt }}" 
-                class="w-full h-full object-cover {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
-                {{ if not $isDetail }}loading="lazy"{{ end }}>
-        {{ else if eq $class "featured-image" }}
-            <img src="/{{ $detailPath }}?v=2" 
-                alt="{{ $alt }}" 
-                class="w-full h-auto object-contain {{ if $isDetail }}rounded-lg{{ else }}rounded-t-lg{{ end }} shadow-sm hover:shadow-md transition-shadow"
-                {{ if not $isDetail }}loading="lazy"{{ end }}>
-        {{ else if eq $class "gallery-image" }}
-            <img src="/{{ $galleryPath }}" 
-                alt="{{ $alt }}" 
-                class="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                {{ if not $isDetail }}loading="lazy"{{ end }}>
-        {{ end }}
-    </picture>
-    {{ if and (or (eq $class "gallery-image") (eq $class "featured-image")) $isDetail }}
+    {{ $images = $images | append $image }}
+{{ end }}
+
+{{ $default := index $images (sub (len $images) 1) }}
+<div class="image-wrapper {{ $class }}">
+    {{ if or (eq $class "gallery-image") (eq $class "featured-image") }}
+    <a href="{{ $original.RelPermalink }}" target="_blank" rel="noopener" class="block">
+    {{ end }}
+    <img src="{{ $default.RelPermalink }}"
+        srcset="{{ range $index, $image := $images }}{{ if $index }}, {{ end }}{{ $image.RelPermalink }} {{ $image.Width }}w{{ end }}"
+        sizes="{{ $sizes }}"
+        width="{{ $default.Width }}"
+        height="{{ $default.Height }}"
+        alt="{{ $alt }}"
+        loading="{{ $loading }}"
+        decoding="async"
+        {{ if eq $loading "eager" }}fetchpriority="high"{{ end }}
+        class="w-full h-full {{ if eq $class "featured-image" }}object-contain{{ else }}object-cover{{ end }} {{ if eq $class "recipe-card-image" }}rounded-t-lg{{ else }}rounded-lg{{ end }} shadow-sm hover:shadow-md transition-shadow">
+    {{ if or (eq $class "gallery-image") (eq $class "featured-image") }}
     </a>
     {{ end }}
 </div>

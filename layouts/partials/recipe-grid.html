@@ -1,6 +1,6 @@
 {{ $recipes := . }}
 <div class="recipe-index">
     {{ range sort $recipes "Params.title" }}
-        {{ partial "recipe-card.html" . }}
+        {{ partialCached "recipe-card.html" . .RelPermalink }}
     {{ end }}
 </div> 

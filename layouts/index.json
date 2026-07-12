@@ -55,10 +55,12 @@
             "nutrition": {{ $page.Params.nutrition | jsonify }},
             "images": {
                 {{ if $page.Params.image }}
-                {{ $thumbPath := replace $page.Params.image "images/recipes/" "_gen/images/recipes/thumbnails/" }}
-                {{ $originalPath := $page.Params.image }}
-                "thumb": {{ $thumbPath | jsonify }},
-                "full": {{ $originalPath | jsonify }}
+                {{ $imagePath := strings.TrimPrefix "/" $page.Params.image }}
+                {{ $original := resources.Get $imagePath }}
+                {{ if not $original }}{{ errorf "Recipe image resource not found: %s" $imagePath }}{{ end }}
+                {{ $thumb := $original.Fill "800x450 webp q82" }}
+                "thumb": {{ $thumb.RelPermalink | jsonify }},
+                "full": {{ $original.RelPermalink | jsonify }}
                 {{ else }}
                 "thumb": null,
                 "full": null
