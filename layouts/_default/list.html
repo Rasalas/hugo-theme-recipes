@@ -10,7 +10,7 @@
       </header>
       <nav class="category-index" aria-label="Rezeptkategorien">
         {{ range .Data.Terms.Alphabetical }}
-        <a href="{{ .Page.Permalink }}" class="category-index-item">
+        <a href="{{ .Page.RelPermalink }}" class="category-index-item">
           <span class="category-index-name">{{ .Page.Title }}</span>
           <span class="category-index-count">{{ .Count }} {{ cond (eq .Count 1) "Rezept" "Rezepte" }}</span>
           <span class="category-index-arrow" aria-hidden="true">↗</span>

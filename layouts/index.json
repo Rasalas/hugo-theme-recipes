@@ -43,7 +43,7 @@
         {
             "title": {{ $page.Title | jsonify }},
             "content": {{ delimit $contentParts " " | jsonify }},
-            "permalink": {{ $page.Permalink | jsonify }},
+            "permalink": {{ $page.RelPermalink | jsonify }},
             "summary": {{ $page.Summary | jsonify }},
             "tags": {{ $page.Params.tags | jsonify }},
             "description": {{ $page.Params.description | jsonify }},
