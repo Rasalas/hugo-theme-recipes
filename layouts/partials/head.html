@@ -4,6 +4,28 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 {{- end }}
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" .Title site.Title }}{{ end }}</title>
+{{- $description := or .Description .Summary }}
+{{- with $description }}
+<meta name="description" content="{{ . }}">
+{{- end }}
+<link rel="canonical" href="{{ .Permalink }}">
+{{- with $description }}
+<meta property="og:description" content="{{ . }}">
+{{- end }}
+<meta property="og:title" content="{{ .Title }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+{{- with site.Title }}
+<meta property="og:site_name" content="{{ . }}">
+{{- end }}
+{{- with .Params.image }}
+<meta property="og:image" content="{{ (. | absURL) }}">
+{{- end }}
+<meta name="twitter:card" content="summary_large_image">
+{{- $rss := .OutputFormats.Get "rss" }}
+{{- with $rss }}
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
+{{- end }}
 <link rel="icon" href="{{ "favicon.ico" | relURL }}" type="image/x-icon" sizes="16x16 32x32 48x48">
 <link rel="icon" href="{{ "favicon-32.png" | relURL }}" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}" sizes="180x180">
