@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    initToTopButton();
+
     const header = document.querySelector('.site-header');
     const menuButton = document.getElementById('mobile-menu-button');
     const menu = document.getElementById('mobile-menu');
@@ -42,3 +44,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, { passive: true });
 });
+
+function initToTopButton() {
+    const button = document.getElementById('toTopButton');
+    if (!button) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let ticking = false;
+
+    const updateVisibility = () => {
+        button.classList.toggle('opacity-100', window.scrollY > 400);
+        button.classList.toggle('invisible', window.scrollY <= 400);
+        ticking = false;
+    };
+
+    button.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        button.blur();
+    });
+
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(updateVisibility);
+    }, { passive: true });
+
+    updateVisibility();
+}
