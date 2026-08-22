@@ -1,0 +1,6 @@
+{{- $script := .resource -}}
+{{- if eq hugo.Environment "development" -}}
+<script defer src="{{ $script.RelPermalink }}"></script>
+{{- else -}}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" crossorigin="anonymous"></script>
+{{- end -}}
