@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { formatNumber, formatScaledAmount, formatTimer, shouldDismissSheet } = require('../static/js/cook-mode.js');
+const { formatNumber, formatScaledAmount, formatTimer, shouldDismissSheet } = require('../assets/js/cook-mode.js');
 
 test('formatNumber keeps useful kitchen fractions', () => {
     assert.equal(formatNumber(0.5), '1/2');

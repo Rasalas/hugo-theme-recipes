@@ -10,7 +10,7 @@ const {
     normalizeSearchTerm,
     parseSearchState,
     uniqueResults,
-} = require('../static/js/search-utils.js');
+} = require('../assets/js/search-utils.js');
 
 test('highlightSegments treats search syntax as literal text', () => {
     assert.deepEqual(highlightSegments('Salz (fein) + Pfeffer', '(fein) +'), [

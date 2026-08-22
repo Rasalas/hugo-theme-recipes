@@ -1,16 +1,12 @@
-{{- with resources.Get "js/main.js" }}
-  {{- if eq hugo.Environment "development" }}
-    {{- with . | js.Build }}
-      <script src="{{ .RelPermalink }}"></script>
-    {{- end }}
-  {{- else }}
-    {{- $opts := dict "minify" true }}
-    {{- with . | js.Build $opts | fingerprint }}
-      <script src="{{ .RelPermalink }}" integrity="{{- .Data.Integrity }}" crossorigin="anonymous"></script>
-    {{- end }}
-  {{- end }}
-{{- end }}
-
+{{- $scripts := slice (resources.Get "js/vendor/fuse-6.6.2.min.js") (resources.Get "js/search-utils.js") (resources.Get "js/search.js") (resources.Get "js/navbar.js") -}}
+{{- range $script := $scripts -}}
+  {{- if eq hugo.Environment "development" -}}
+    {{- $script = $script | js.Build -}}
+  {{- else -}}
+    {{- $script = $script | js.Build (dict "minify" true) | fingerprint -}}
+  {{- end -}}
+  {{- partial "head/script-tag.html" (dict "resource" $script) -}}
+{{- end -}}
 <script>
   // Recipe hash that changes when recipes are updated
   {{- $versions := slice -}}

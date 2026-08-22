@@ -195,6 +195,20 @@
 </style>
 
 {{ partial "search-highlight.html" . }}
-<script src="/js/wakelock.js"></script>
-{{ if $isStructured }}<script src="/js/cook-mode.js"></script>{{ end }}
+{{- $wakelock := resources.Get "js/wakelock.js" -}}
+{{- if eq hugo.Environment "development" -}}
+  {{- $wakelock = $wakelock | js.Build -}}
+{{- else -}}
+  {{- $wakelock = $wakelock | js.Build (dict "minify" true) | fingerprint -}}
+{{- end -}}
+{{- partial "head/script-tag.html" (dict "resource" $wakelock) -}}
+{{ if $isStructured }}
+{{- $cookMode := resources.Get "js/cook-mode.js" -}}
+{{- if eq hugo.Environment "development" -}}
+  {{- $cookMode = $cookMode | js.Build -}}
+{{- else -}}
+  {{- $cookMode = $cookMode | js.Build (dict "minify" true) | fingerprint -}}
+{{- end -}}
+{{- partial "head/script-tag.html" (dict "resource" $cookMode) -}}
+{{ end }}
 {{ end }}
