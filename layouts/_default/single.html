@@ -194,7 +194,6 @@
 
 </style>
 
-{{ partial "search-highlight.html" . }}
 {{- $wakelock := resources.Get "js/wakelock.js" -}}
 {{- if eq hugo.Environment "development" -}}
   {{- $wakelock = $wakelock | js.Build -}}
