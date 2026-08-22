@@ -681,29 +681,6 @@
     .ingredient-reset { width: 2.4rem; height: 2.4rem; padding: 0; place-items: center; }
 }
 
-.wake-lock-fab {
-    position: fixed;
-    right: 1.5rem;
-    bottom: 1.5rem;
-    z-index: 40;
-    display: grid;
-    width: 3.5rem;
-    height: 3.5rem;
-    padding: 0;
-    border: 1px solid var(--site-line);
-    border-radius: 50%;
-    place-items: center;
-    background: var(--site-paper);
-    color: var(--site-ink);
-    box-shadow: 0 .8rem 2rem var(--site-shadow);
-    cursor: pointer;
-    transition: transform .2s ease, background .2s ease, color .2s ease;
-}
-
-.wake-lock-fab:hover,
-.wake-lock-fab:focus-visible { transform: translateY(-2px); }
-.wake-lock-fab:active { transform: translateY(0) scale(.96); }
-.wake-lock-fab.active,
 .wake-lock-toggle.active { background: #d6a65f; color: #211a13; }
 .wake-lock-icon { width: 1.5rem; height: 1.5rem; }
 
@@ -1181,7 +1158,6 @@
         font-size: 1rem;
     }
     .cook-mode-shell > footer button:last-child { border-radius: .65rem 1.6rem .65rem 1.6rem; }
-    .wake-lock-fab { right: 1rem; bottom: 1rem; width: 3.25rem; height: 3.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

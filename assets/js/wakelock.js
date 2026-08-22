@@ -4,13 +4,6 @@
 
     function updateUI() {
         const active = wakeLock !== null;
-        const legacyButton = document.getElementById('wakeLockButton');
-        if (legacyButton) {
-            legacyButton.setAttribute('aria-pressed', active ? 'true' : 'false');
-            legacyButton.classList.toggle('active', active);
-            legacyButton.setAttribute('aria-label', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
-            legacyButton.setAttribute('title', active ? 'Bildschirm bleibt an' : 'Bildschirm anlassen');
-        }
         document.querySelectorAll('[data-wake-lock-toggle]').forEach((button) => {
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
             button.classList.toggle('active', active);
@@ -82,6 +75,5 @@
         toggle,
         isActive: () => wakeLock !== null,
     };
-    window.toggleWakeLock = toggle;
     updateUI();
 })();
