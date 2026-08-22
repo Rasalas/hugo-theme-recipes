@@ -1185,3 +1185,99 @@
     .section-title-row { margin-bottom: .4cm; }
     .recipe-notes { margin-top: .8cm; }
 }
+
+/* Recipe page: legacy content styles */
+/* Content Styles */
+.recipe-content h2 {
+    font-size: 1.5em !important;
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+}
+.recipe-content h3 {
+    font-size: 1.25em !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.75em !important;
+}
+.recipe-content ul {
+    margin-top: 0.5em !important;
+    margin-bottom: 1.5em !important;
+}
+.recipe-content li {
+    margin-top: 0.25em !important;
+    margin-bottom: 0.25em !important;
+}
+
+/* Recipe page: print styles */
+@media print {
+
+    /* Reset page margins and padding */
+    @page {
+        margin: 2cm;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure content uses full width */
+    .mx-auto {
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Optimize typography for print */
+    .prose {
+        max-width: none !important;
+        font-size: 11pt !important;
+        line-height: 1.4 !important;
+    }
+
+    h1 {
+        font-size: 18pt !important;
+        margin: 0 0 0.5cm 0 !important;
+        padding: 0 !important;
+    }
+
+    h2 {
+        font-size: 14pt !important;
+        margin: 1cm 0 0.3cm 0 !important;
+        padding: 0 !important;
+        page-break-after: avoid;
+    }
+
+    h3 {
+        font-size: 12pt !important;
+        margin: 0.8cm 0 0.3cm 0 !important;
+        padding: 0 !important;
+        page-break-after: avoid;
+    }
+
+    /* Ensure lists are properly indented and spaced */
+    ul, ol {
+        padding-left: 1cm !important;
+        margin: 0.3cm 0 0.5cm 0 !important;
+        page-break-inside: auto;
+    }
+
+    li {
+        margin: 0.15cm 0 !important;
+    }
+
+    /* Remove background colors and adjust text colors for better printing */
+    * {
+        background: none !important;
+        color: black !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+        border-color: #ddd !important;
+    }
+
+    /* Ensure URLs are printed for links */
+    a[href^="http"]:after {
+        content: " (" attr(href) ")";
+        font-size: 9pt;
+        color: #666 !important;
+    }
+}
