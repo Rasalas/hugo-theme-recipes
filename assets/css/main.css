@@ -465,7 +465,18 @@
     padding: 1.35rem 0;
     border-bottom: 1px solid var(--site-line);
     color: var(--site-ink);
-    text-decoration: none;
+}
+
+.recipe-index-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.recipe-index-link:focus-visible {
+    outline: 2px solid #d6a65f;
+    outline-offset: 3px;
 }
 
 .recipe-index-media {
@@ -553,12 +564,17 @@
     transition: transform .2s ease;
 }
 
+.recipe-index-link {
+    text-decoration: none;
+    color: inherit;
+}
+
 .recipe-index-item:hover .recipe-index-copy h2,
-.recipe-index-item:focus-visible .recipe-index-copy h2 { color: #d6a65f; }
+.recipe-index-item:focus-within .recipe-index-copy h2 { color: #d6a65f; }
 .recipe-index-item:hover .recipe-index-media img,
-.recipe-index-item:focus-visible .recipe-index-media img { filter: saturate(1.08); transform: scale(1.025); }
+.recipe-index-item:focus-within .recipe-index-media img { filter: saturate(1.08); transform: scale(1.025); }
 .recipe-index-item:hover .recipe-index-arrow,
-.recipe-index-item:focus-visible .recipe-index-arrow { transform: translate(.18rem, -.18rem); }
+.recipe-index-item:focus-within .recipe-index-arrow { transform: translate(.18rem, -.18rem); }
 
 .to-top-button {
     position: fixed;
