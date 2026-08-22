@@ -1,5 +1,5 @@
 {{ $recipe := . }}
-<a href="{{ .RelPermalink }}" class="recipe-index-item group">
+<article class="recipe-index-item group">
     <div class="recipe-index-media">
     {{ if .Params.image }}
     {{ partial "optimized-image.html" (dict "image" .Params.image "alt" .Title "class" "recipe-card-image") }}
@@ -10,7 +10,9 @@
     {{ end }}
     </div>
     <div class="recipe-index-copy">
-        <h2>{{ .Title }}</h2>
+        <h2>
+            <a href="{{ .RelPermalink }}" class="recipe-index-link">{{ .Title }}</a>
+        </h2>
         {{ if .Params.description }}
         <p>{{ .Params.description }}</p>
         {{ end }}
@@ -23,4 +25,4 @@
         {{ end }}
     </div>
     <span class="recipe-index-arrow" aria-hidden="true">↗</span>
-</a>
+</article>
