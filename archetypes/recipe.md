@@ -1,25 +1,27 @@
 ---
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
-date: {{ .Date }}
+schemaVersion: 1
+date: '{{ .Date }}'
 tags: []
-images: []
-description: 
-comment: true
-source: 
-food_for: 
 type: recipe
+comment: true
+description:
+servings:
+servingUnit:
+ingredientGroups:
+  - name:
+    ingredients:
+      - amount:
+        unit:
+        name:
+        note:
+steps:
+  - group:
+    text:
+    timers:
+      - durationMinutes:
+        durationText:
+        label:
 ---
-
-## Zutaten
-
-### Teilschritt 1
-
-### Teilschritt 2
-
-## Zubereitung
-
-### Teilschritt 1
-
-### Teilschritt 2
 
 ## Anmerkungen
