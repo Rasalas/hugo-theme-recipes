@@ -1,0 +1,164 @@
+[navAriaLabel]
+other = "Main navigation"
+
+[brandHome]
+other = "Home"
+
+[familyRecipes]
+other = "Family recipes"
+
+[searchRecipes]
+other = "Search recipes"
+
+[openNavigation]
+other = "Open navigation"
+
+[categories]
+other = "Categories"
+
+[browseByTopic]
+other = "Browse by topic"
+
+[newRecipe]
+other = "New recipe"
+
+[addRecipe]
+other = "Add a recipe"
+
+[inFamilyCookbook]
+other = "In the family cookbook"
+
+[whatWouldYouLikeToCook]
+other = "What would you like to cook?"
+
+[closeSearch]
+other = "Close search"
+
+[searchRecipe]
+other = "Search recipe"
+
+[searchPlaceholder]
+other = "Title, ingredient or family name …"
+
+[clearSearchQuery]
+other = "Clear search query"
+
+[readyToSearch]
+other = "Ready to search."
+
+[minCharacters]
+other = "At least 2 characters"
+
+[idleHint]
+other = "Search for a recipe, an ingredient or a tag."
+
+[idleExample]
+other = 'For example "yeast", "quick" or "grandma"'
+
+[noResultsTitle]
+other = "Nothing found"
+
+[noResultsHint]
+other = "Try a shorter term or remove a filter."
+
+[resetSearch]
+other = "Reset search"
+
+[navigate]
+other = "navigate"
+
+[close]
+other = "close"
+
+[homeKicker]
+other = "Family cooking from A to Z"
+
+[allRecipes]
+other = "All recipes"
+
+[homeTagline]
+other = "{{ . }} recipes to revisit, cook and share."
+
+[toTop]
+other = "Back to top"
+
+[categoriesTagline]
+other = "{{ . }} Categories für den schnellen Weg zum passenden Rezept."
+
+[openSearch]
+other = "Open search"
+
+[recipeOverview]
+other = "Recipe overview"
+
+[adjustServings]
+other = "Adjust servings"
+
+[oneServingLess]
+other = "One serving less"
+
+[oneServingMore]
+other = "One serving more"
+
+[resetAmountTo]
+other = "Reset amount to {{ . }}"
+
+[resetAmount]
+other = "Reset amount"
+
+[reset]
+other = "Reset"
+
+[nutrition]
+other = "Nutrition"
+
+[per100g]
+other = "per 100 g"
+
+[perServing]
+other = "per serving"
+
+[proteinSuffix]
+other = "g protein"
+
+[closeCookMode]
+other = "Kochmodus close"
+
+[back]
+other = "Back"
+
+[wakeScreenOn]
+other = "Keep screen on"
+
+[wakeScreenStaysOn]
+other = "Screen stays on"
+
+[wakeLockOff]
+other = "Screen wake lock is off."
+
+[wakeLockActive]
+other = "Screen wake lock is active."
+
+[gallery]
+other = "Gallery"
+
+[amount]
+other = "Amount"
+
+[cookTime]
+other = "Cook time"
+
+[ingredients]
+other = "Ingredients"
+
+[preparation]
+other = "Preparation"
+
+[next]
+other = "Next"
+
+[servings]
+other = "servings"
+
+[stepLabel]
+other = "Step {{ . }}"

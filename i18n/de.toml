@@ -1,0 +1,164 @@
+[navAriaLabel]
+other = "Hauptnavigation"
+
+[brandHome]
+other = "Startseite"
+
+[familyRecipes]
+other = "Familienrezepte"
+
+[searchRecipes]
+other = "Rezepte durchsuchen"
+
+[openNavigation]
+other = "Navigation öffnen"
+
+[categories]
+other = "Kategorien"
+
+[browseByTopic]
+other = "Nach Themen stöbern"
+
+[newRecipe]
+other = "Neues Rezept"
+
+[addRecipe]
+other = "Rezept eintragen"
+
+[inFamilyCookbook]
+other = "Im Familienkochbuch"
+
+[whatWouldYouLikeToCook]
+other = "Was möchtest du kochen?"
+
+[closeSearch]
+other = "Suche schließen"
+
+[searchRecipe]
+other = "Rezept suchen"
+
+[searchPlaceholder]
+other = "Titel, Zutat oder Familienname …"
+
+[clearSearchQuery]
+other = "Suchbegriff löschen"
+
+[readyToSearch]
+other = "Bereit zum Suchen."
+
+[minCharacters]
+other = "Mindestens 2 Zeichen"
+
+[idleHint]
+other = "Suche nach einem Rezept, einer Zutat oder einem Tag."
+
+[idleExample]
+other = "Zum Beispiel „Hefe“, „schnell“ oder „Monika“"
+
+[noResultsTitle]
+other = "Nichts Passendes gefunden"
+
+[noResultsHint]
+other = "Versuche einen kürzeren Begriff oder entferne einen Filter."
+
+[resetSearch]
+other = "Suche zurücksetzen"
+
+[navigate]
+other = "navigieren"
+
+[close]
+other = "schließen"
+
+[homeKicker]
+other = "Familienküche von A–Z"
+
+[allRecipes]
+other = "Alle Rezepte"
+
+[homeTagline]
+other = "{{ . }} Rezepte zum Wiederfinden, Nachkochen und Weitergeben."
+
+[toTop]
+other = "Nach oben"
+
+[categoriesTagline]
+other = "{{ . }} Kategorien für den schnellen Weg zum passenden Rezept."
+
+[openSearch]
+other = "Suche öffnen"
+
+[recipeOverview]
+other = "Rezeptübersicht"
+
+[adjustServings]
+other = "Portionen anpassen"
+
+[oneServingLess]
+other = "Eine Portion weniger"
+
+[oneServingMore]
+other = "Eine Portion mehr"
+
+[resetAmountTo]
+other = "Menge auf {{ . }} zurücksetzen"
+
+[resetAmount]
+other = "Menge zurücksetzen"
+
+[reset]
+other = "Zurücksetzen"
+
+[nutrition]
+other = "Nährwerte"
+
+[per100g]
+other = "pro 100 g"
+
+[perServing]
+other = "pro Portion"
+
+[proteinSuffix]
+other = "g Eiweiß"
+
+[closeCookMode]
+other = "Kochmodus schließen"
+
+[back]
+other = "Zurück"
+
+[wakeScreenOn]
+other = "Bildschirm anlassen"
+
+[wakeScreenStaysOn]
+other = "Bildschirm bleibt an"
+
+[wakeLockOff]
+other = "Bildschirm-Wachmodus ist aus."
+
+[wakeLockActive]
+other = "Bildschirm-Wachmodus ist aktiv."
+
+[gallery]
+other = "Galerie"
+
+[amount]
+other = "Menge"
+
+[cookTime]
+other = "Garzeit"
+
+[ingredients]
+other = "Zutaten"
+
+[preparation]
+other = "Zubereitung"
+
+[next]
+other = "Weiter"
+
+[servings]
+other = "Portionen"
+
+[stepLabel]
+other = "Schritt {{ . }}"
