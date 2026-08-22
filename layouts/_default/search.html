@@ -3,6 +3,6 @@
   <span>Rezeptsuche</span>
   <h1>Das ganze Kochbuch.<br>Ein Griff.</h1>
   <p>Durchsuche {{ len (where .Site.RegularPages "Section" "recipe") }} Familienrezepte nach Namen, Zutaten und Tags.</p>
-  <button type="button" data-search-open>Suche öffnen <span aria-hidden="true">→</span></button>
+  <button type="button" data-search-open>{{ i18n "openSearch" }} <span aria-hidden="true">→</span></button>
 </section>
 {{ end }}

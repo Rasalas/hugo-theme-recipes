@@ -1,6 +1,6 @@
 {{- $page := . -}}
 {{- $servings := .Params.servings -}}
-{{- $servingUnit := .Params.servingunit | default "Portionen" -}}
+{{- $servingUnit := .Params.servingunit | default (i18n "servings") -}}
 {{- $servingOriginal := .Params.servingstext | default "" -}}
 {{- if and (eq $servingOriginal "") $servings -}}
     {{- $servingOriginal = printf "%v" $servings -}}
@@ -17,18 +17,18 @@
     <p class="recipe-lede">{{ . }}</p>
     {{ end }}
 
-    <section class="recipe-dashboard{{ if not $hasServingInfo }} recipe-dashboard--without-servings{{ end }}" aria-label="Rezeptübersicht">
+    <section class="recipe-dashboard{{ if not $hasServingInfo }} recipe-dashboard--without-servings{{ end }}" aria-label="{{ i18n "recipeOverview" }}">
         {{ if $hasServingInfo }}
         <div class="portion-panel">
-            <span class="dashboard-kicker">Menge</span>
+            <span class="dashboard-kicker">{{ i18n "amount" }}</span>
             {{ with $servings }}
             <div class="portion-control-row print:hidden">
-                <div class="portion-control" aria-label="Portionen anpassen">
-                    <button type="button" data-portion-decrease aria-label="Eine Portion weniger">−</button>
+                <div class="portion-control" aria-label="{{ i18n "adjustServings" }}">
+                    <button type="button" data-portion-decrease aria-label="{{ i18n "oneServingLess" }}">−</button>
                     <output data-portion-current aria-live="polite">{{ . }}</output>
-                    <button type="button" data-portion-increase aria-label="Eine Portion mehr">+</button>
+                    <button type="button" data-portion-increase aria-label="{{ i18n "oneServingMore" }}">+</button>
                 </div>
-                <button type="button" class="context-reset context-reset-icon" data-portion-reset aria-label="Menge auf {{ $servingOriginal }} zurücksetzen" title="Menge zurücksetzen" hidden>
+                <button type="button" class="context-reset context-reset-icon" data-portion-reset aria-label="{{ i18n "resetAmountTo" $servingOriginal }}" title="{{ i18n "resetAmount" }}" hidden>
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 4v6h6M5.5 15a7 7 0 1 0 1.15-8.3L4 10" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
                     </svg>
@@ -49,14 +49,14 @@
             <div><span>Ruhe</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.resttimemaxminutes) }}</strong></div>
             {{ end }}
             {{ with .Params.cooktimeminutes }}
-            <div><span>Garzeit</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.cooktimemaxminutes) }}</strong></div>
+            <div><span>{{ i18n "cookTime" }}</span><strong>{{ partial "structured-duration.html" (dict "min" . "max" $page.Params.cooktimemaxminutes) }}</strong></div>
             {{ end }}
             {{ with .Params.nutrition }}
             <div>
-                <span>Nährwerte {{ if eq .basis "per100g" }}pro 100 g{{ else }}{{ with .basisText }}({{ . }}){{ else }}pro Portion{{ end }}{{ end }}</span>
+                <span>{{ i18n "nutrition" }} {{ if eq .basis "per100g" }}{{ i18n "per100g" }}{{ else }}{{ with .basisText }}({{ . }}){{ else }}{{ i18n "perServing" }}{{ end }}{{ end }}</span>
                 <strong>
                     {{- with .caloriesKcal }}{{ . }} kcal{{ end -}}
-                    {{- with .proteinGrams }} · {{ . }} g Eiweiß{{ end -}}
+                    {{- with .proteinGrams }} · {{ . }} {{ i18n "proteinSuffix" }}{{ end -}}
                     {{- with .carbohydratesGrams }} · {{ . }} g KH{{ end -}}
                     {{- with .fatGrams }} · {{ . }} g Fett{{ end -}}
                 </strong>
@@ -76,13 +76,13 @@
                 <span class="section-number" aria-hidden="true">01</span>
                 <div>
                     <span class="section-kicker">Mise en place</span>
-                    <h2 id="ingredients-title">Zutaten</h2>
+                    <h2 id="ingredients-title">{{ i18n "ingredients" }}</h2>
                 </div>
                 <button type="button" class="context-reset ingredient-reset print:hidden" data-ingredients-reset hidden>
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 4v6h6M5.5 15a7 7 0 1 0 1.15-8.3L4 10" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
                     </svg>
-                    <span>Zurücksetzen</span>
+                    <span>{{ i18n "reset" }}</span>
                 </button>
             </header>
 
@@ -137,7 +137,7 @@
                 <span class="section-number" aria-hidden="true">02</span>
                 <div>
                     <span class="section-kicker">Am Herd</span>
-                    <h2 id="steps-title">Zubereitung</h2>
+                    <h2 id="steps-title">{{ i18n "preparation" }}</h2>
                 </div>
             </header>
 
@@ -214,10 +214,10 @@
                     <h2 id="cook-mode-title" tabindex="-1">Kochmodus</h2>
                 </div>
                 <div class="cook-mode-header-actions">
-                    <button type="button" class="wake-lock-toggle" data-wake-lock-toggle aria-label="Bildschirm anlassen" title="Bildschirm anlassen">
+                    <button type="button" class="wake-lock-toggle" data-wake-lock-toggle aria-label="{{ i18n "wakeScreenOn" }}" title="{{ i18n "wakeScreenOn" }}">
                         {{ partial "wake-lock-icon.html" . }}
                     </button>
-                    <button type="button" class="cook-mode-close" data-cook-mode-close aria-label="Kochmodus schließen">
+                    <button type="button" class="cook-mode-close" data-cook-mode-close aria-label="{{ i18n "closeCookMode" }}">
                         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" stroke-width="2.4"/>
                         </svg>
@@ -225,15 +225,15 @@
                 </div>
             </header>
             <div class="cook-mode-progress">
-                <span data-cook-progress>Schritt 1</span>
+                <span data-cook-progress>{{ i18n "stepLabel" 1 }}</span>
                 <div aria-hidden="true"><i data-cook-progress-bar></i></div>
             </div>
             <div class="cook-mode-content" data-cook-mode-content></div>
             <footer>
-                <button type="button" data-cook-previous>← Zurück</button>
-                <button type="button" data-cook-next>Weiter →</button>
+                <button type="button" data-cook-previous>← {{ i18n "back" }}</button>
+                <button type="button" data-cook-next>{{ i18n "next" }} →</button>
             </footer>
-            <p class="wake-lock-status sr-only" data-wake-lock-status aria-live="polite">Bildschirm-Wachmodus ist aus.</p>
+            <p class="wake-lock-status sr-only" data-wake-lock-status aria-live="polite">{{ i18n "wakeLockOff" }}</p>
         </div>
     </dialog>
 </div>

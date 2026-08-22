@@ -3,9 +3,9 @@
     <div class="pt-20 md:pt-12 pb-4 px-4">
         <div class="max-w-7xl mx-auto">
             <header class="recipe-index-header">
-                <span>Familienküche von A–Z</span>
-                <h1>Alle Rezepte</h1>
-                <p>{{ len (where .Site.RegularPages "Section" "recipe") }} Rezepte zum Wiederfinden, Nachkochen und Weitergeben.</p>
+                <span>{{ i18n "homeKicker" }}</span>
+                <h1>{{ i18n "allRecipes" }}</h1>
+                <p>{{ i18n "homeTagline" (len (where .Site.RegularPages "Section" "recipe")) }}</p>
             </header>
             <!-- Liste aller Rezepte -->
             <div id="all-recipes">
@@ -17,7 +17,7 @@
 </div>
 
 <!-- Nach oben Button -->
-<button id="toTopButton" type="button" class="to-top-button opacity-0 invisible" aria-label="Nach oben">
+<button id="toTopButton" type="button" class="to-top-button opacity-0 invisible" aria-label="{{ i18n "toTop" }}">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
     </svg>

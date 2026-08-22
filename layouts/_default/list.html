@@ -6,7 +6,7 @@
       <header class="recipe-index-header category-index-header">
         <span>Rezeptregister</span>
         <h1>Kategorien</h1>
-        <p>{{ len .Data.Terms }} Kategorien für den schnellen Weg zum passenden Rezept.</p>
+        <p>{{ i18n "categoriesTagline" (len .Data.Terms) }}</p>
       </header>
       <nav class="category-index" aria-label="Rezeptkategorien">
         {{ range .Data.Terms.Alphabetical }}

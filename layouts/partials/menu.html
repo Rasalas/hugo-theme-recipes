@@ -2,15 +2,15 @@
 {{- $menuID := .menuID -}}
 {{- $isDevelopment := $page.Site.Params.isDevelopment -}}
 
-<nav class="site-nav" aria-label="Hauptnavigation">
+<nav class="site-nav" aria-label="{{ i18n "navAriaLabel" }}">
   <div class="site-nav-inner">
-    <a href="{{ "/" | relURL }}" class="site-brand" aria-label="{{ site.Title }} – Startseite">
+    <a href="{{ "/" | relURL }}" class="site-brand" aria-label="{{ site.Title }} – {{ i18n "brandHome" }}">
       <span class="site-brand-mark" aria-hidden="true">
         <img src="/images/brand/kochloeffel-logo-256.png" alt="" width="256" height="256">
       </span>
       <span class="site-brand-copy">
         <strong>{{ site.Title }}</strong>
-        <small>Familienrezepte</small>
+        <small>{{ i18n "familyRecipes" }}</small>
       </span>
     </a>
 
@@ -19,11 +19,11 @@
     </div>
 
     <div class="site-nav-mobile-actions">
-      <button type="button" class="site-mobile-search" data-search-open aria-haspopup="dialog" aria-label="Rezepte durchsuchen">
+      <button type="button" class="site-mobile-search" data-search-open aria-haspopup="dialog" aria-label="{{ i18n "searchRecipes" }}">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
       </button>
       <button type="button" id="mobile-menu-button" class="site-menu-toggle" aria-controls="mobile-menu" aria-expanded="false">
-        <span class="sr-only">Navigation öffnen</span>
+        <span class="sr-only">{{ i18n "openNavigation" }}</span>
         <span></span><span></span>
       </button>
     </div>
@@ -38,7 +38,7 @@
         <span class="site-nav-action-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5.5h6l9.5 9.5-4.5 4.5L5.5 10V4Z"></path><circle cx="8" cy="8" r="1"></circle></svg>
         </span>
-        <span class="site-nav-action-copy"><strong>Kategorien</strong><small>Nach Themen stöbern</small></span>
+        <span class="site-nav-action-copy"><strong>{{ i18n "categories" }}</strong><small>{{ i18n "browseByTopic" }}</small></span>
       </a>
       {{ if $isDevelopment }}
       <a href="http://localhost:3000/recipe/form.php" class="site-nav-action site-nav-new">
@@ -48,7 +48,7 @@
         <span class="site-nav-action-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"></path></svg>
         </span>
-        <span class="site-nav-action-copy"><strong>Neues Rezept</strong><small>Rezept eintragen</small></span>
+        <span class="site-nav-action-copy"><strong>{{ i18n "newRecipe" }}</strong><small>{{ i18n "addRecipe" }}</small></span>
       </a>
     </div>
   </div>

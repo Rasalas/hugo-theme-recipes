@@ -22,7 +22,7 @@
         
         {{ if .Params.gallery }}
         <div class="recipe-gallery mt-12 not-prose print:hidden">
-            <h2 class="recipe-gallery-title">Galerie</h2>
+            <h2 class="recipe-gallery-title">{{ i18n "gallery" }}</h2>
             <div class="recipe-gallery-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{ range .Params.gallery }}
                 <div class="recipe-gallery-frame w-full overflow-hidden">
