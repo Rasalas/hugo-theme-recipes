@@ -1,4 +1,9 @@
-{{- $scripts := slice (resources.Get "js/vendor/fuse-6.6.2.min.js") (resources.Get "js/search-utils.js") (resources.Get "js/search.js") (resources.Get "js/navbar.js") -}}
+{{- $fuse := resources.Get "js/vendor/fuse-6.6.2.min.js" -}}
+{{- if ne hugo.Environment "development" -}}
+  {{- $fuse = $fuse | fingerprint -}}
+{{- end -}}
+{{- partial "head/script-tag.html" (dict "resource" $fuse) -}}
+{{- $scripts := slice (resources.Get "js/search-utils.js") (resources.Get "js/search.js") (resources.Get "js/navbar.js") -}}
 {{- range $script := $scripts -}}
   {{- if eq hugo.Environment "development" -}}
     {{- $script = $script | js.Build -}}
