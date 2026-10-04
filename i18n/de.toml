@@ -7,6 +7,9 @@ other = "Startseite"
 [familyRecipes]
 other = "Familienrezepte"
 
+[recipeMetaDescription]
+other = "Rezept für {{ .Title }} aus {{ .Site }}."
+
 [searchRecipes]
 other = "Rezepte durchsuchen"
 
