@@ -8,6 +8,7 @@
     {{- $servingOriginal = printf "%s %s" $servingOriginal $servingUnit -}}
 {{- end -}}
 {{- $hasServingInfo := ne $servingOriginal "" -}}
+{{- $hasOverview := or $hasServingInfo .Params.preptimeminutes .Params.resttimeminutes .Params.cooktimeminutes .Params.nutrition -}}
 <div id="structuredRecipe"
      class="structured-recipe not-prose"
      data-recipe-key="{{ with .File }}{{ .BaseFileName }}{{ else }}{{ .Title | urlize }}{{ end }}"
@@ -17,6 +18,7 @@
     <p class="recipe-lede">{{ . }}</p>
     {{ end }}
 
+    {{ if $hasOverview }}
     <section class="recipe-dashboard{{ if not $hasServingInfo }} recipe-dashboard--without-servings{{ end }}" aria-label="{{ i18n "recipeOverview" }}">
         {{ if $hasServingInfo }}
         <div class="portion-panel">
@@ -63,12 +65,13 @@
             </div>
             {{ end }}
         </div>
-        <div class="recipe-actions print:hidden">
-            <button type="button" class="cook-mode-launch" data-cook-mode-open>
-                <span aria-hidden="true">▶</span> Kochmodus starten
-            </button>
-        </div>
     </section>
+    {{ end }}
+    <div class="recipe-actions print:hidden">
+        <button type="button" class="cook-mode-launch" data-cook-mode-open>
+            <span aria-hidden="true">▶</span> Kochmodus starten
+        </button>
+    </div>
 
     <div class="recipe-structure">
         <section class="ingredients-column" aria-labelledby="ingredients-title">
